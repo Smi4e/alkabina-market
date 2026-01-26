@@ -3,53 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ماركت الكابينة - الطلب السريع</title>
+    <title>ماركت الكابينة</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
-        .navy-bg { background-color: #1e3a8a; }
-        .yellow-btn { background-color: #facc15; color: #1e3a8a; }
-        .item-card { border-right: 5px solid #facc15; }
-        .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: #1e3a8a;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Tajawal', sans-serif; }</style>
 </head>
-<body class="pb-32">
+<body class="bg-gray-50 pb-24">
 
-    <header class="navy-bg text-white p-8 rounded-b-[40px] shadow-2xl text-center mb-8 border-b-4 border-yellow-400">
-        <h1 class="text-4xl font-bold tracking-tight">🏠 ماركت الكابينة</h1>
-        <p class="text-yellow-400 mt-2 font-medium">تسوق بذكاء.. نصلك أينما كنت</p>
+    <header class="bg-blue-900 text-white p-6 text-center shadow-lg border-b-4 border-yellow-400">
+        <h1 class="text-2xl font-bold">🏠 ماركت الكابينة</h1>
+        <p class="text-yellow-400 text-sm">أهلاً بك في متجرنا</p>
     </header>
 
-    <main class="max-w-md mx-auto px-4">
-        <div id="loading-spinner" class="flex flex-col items-center justify-center py-20 text-blue-900 font-bold gap-4">
-            <div class="spinner"></div>
-            <span>جاري تحديث قائمة المنتجات...</span>
-        </div>
+    <div id="status-msg" class="text-center p-10 font-bold text-blue-900 flex flex-col items-center gap-2">
+        <div id="spinner" class="w-8 h-8 border-4 border-blue-900 border-t-transparent rounded-full animate-spin"></div>
+        <span>جاري جلب قائمة الأسعار...</span>
+    </div>
+    
+    <div id="products-container" class="p-4 space-y-4 max-w-md mx-auto"></div>
 
-        <div id="products-container" class="space-y-4"></div>
-    </main>
-
-    <div id="floating-cart" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[92%] max-w-md bg-blue-900 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center hidden z-50 border-t-4 border-yellow-400">
-        <div class="flex items-center gap-3">
-            <div class="bg-yellow-400 text-blue-900 min-w-[40px] h-10 rounded-full flex items-center justify-center font-bold">
-                <span id="cart-count">0</span>
-            </div>
-            <div>
-                <p class="text-xs text-yellow-300">الإجمالي:</p>
-                <p class="font-bold text-lg leading-none"><span id="cart-total">0</span> د.ع</p>
-            </div>
+    <div id="cart-bar" class="fixed bottom-0 left-0 right-0 bg-blue-900 p-4 text-white flex justify-between items-center hidden shadow-2xl z-50">
+        <div class="flex flex-col">
+            <span class="text-xs text-yellow-400">المجموع النهائي</span>
+            <span class="font-bold text-lg"><span id="total">0</span> د.ع</span>
         </div>
-        <button onclick="sendOrderViaWhatsApp()" class="bg-yellow-400 text-blue-900 py-3 px-6 rounded-xl font-bold active:scale-95 shadow-md flex items-center gap-2">
-            إرس
+        <button onclick="sendOrder()" class="bg-yellow-400 text-blue-900 px-6 py-3 rounded-xl font-bold active:scale-95 shadow-lg">إرسال الطلب 📲</button>
+    </div>
+
+    <script>
+        // الرابط المباشر
+        const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_Ja8kz5VAApLStZ9Y_erhYNqL3eXMafTSR9T8xkI82UzYQMS_efXuIyASXRKZTwYZGp69ExZB-7r3/pub?output=csv';
+
+        async function getData() {
+            try {
+                const response = await fetch(sheetURL);
+                if (!response.ok) throw new Error();
+                const text = await response.text();
+                
+                // تحويل النص إلى أسطر وتنظيفها
+                const rows = text.split('\n').map(row => row.split(',')).filter(cols => cols.length >= 2 && cols[0] !== 'name');
+                
+                let html = '';
+                rows.forEach(cols => {
+                    const name = cols[0].replace(/"/g, '').trim();
+                    const price = cols[1].replace(/"/g, '').trim();
+                    const img = cols[2] ? cols[2].replace(/"/g, '').trim() : '';
+
+                    html += `
+                    <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center border-r-8 border-yellow-400 transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-2xl shadow-inner">📦</div>
+                            <div>
+                                <h3 class="font-bold text-gray-800">${name}</h3>
+                                <p class="text-blue-700 font-extrabold text-lg">${parseInt(price).toLocaleString()} <span class="text-xs">د.ع</span></p>
+                            </div>
+                        </div>
+                        <button onclick="add('${name}', ${price})" class="bg-yellow-400 hover:bg-yellow-500 w-12 h-12 rounded-2xl font-bold shadow-md text-2xl text-blue-900 flex items-center justify-center">+</button>
+                    </div>`;
+                });
+
+                if(rows.length === 0) {
+                    document.getElementById('status-msg').innerHTML = "الجدول متاح ولكن لا توجد منتجات حالياً.";
+                } else {
+                    document.getElementById('products-container').innerHTML = html;
+                    document.getElementById('status-msg').style.display = 'none';
+                }
+
+            } catch (e) {
+                document.getElementById('status-msg').innerHTML = `
+                    <div class="bg-red-50 p-4 rounded-xl text-red-600 border border-red-200">
+                        ⚠️ حدث خطأ في الاتصال.<br>
+                        <small>تأكد أنك ضغطت على "نشر على الويب" في جوجل شيت.</small>
+                    </div>`;
+            }
+        }
+
+        let cart = [], total = 0;
+        function add(n, p) {
+            cart.push(n);
+            total += parseInt(p);
+            document.getElementById('total').innerText = total.toLocaleString();
+            document.getElementById('cart-bar').classList.remove('hidden');
+        }
+
+        function sendOrder() {
+            let msg = "*طلب جديد من ماركت الكابينة*%0a------------------%0a";
+            cart.forEach((item, index) => msg += `${index+1}. ${item}%0a`);
+            msg += "------------------%0a";
+            msg += `*المجموع: ${total.toLocaleString()} د.ع*`;
+            window.open(`https://wa.me/9647760982880?text=${msg}`);
+        }
+
+        getData();
+    </script>
+</body>
+</html>
