@@ -10,141 +10,111 @@
         body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
         .navy-bg { background-color: #1e3a8a; }
         .yellow-btn { background-color: #facc15; color: #1e3a8a; }
-        /* تنسيق الكارت: خط أصفر على اليمين */
-        .item-card { border-right: 4px solid #facc15; }
+        .item-card { border-right: 5px solid #facc15; }
     </style>
 </head>
-<body class="pb-32"> <header class="navy-bg text-white p-8 rounded-b-[40px] shadow-2xl text-center mb-8 border-b-4 border-yellow-400">
+<body class="pb-32">
+
+    <header class="navy-bg text-white p-8 rounded-b-[40px] shadow-2xl text-center mb-8 border-b-4 border-yellow-400">
         <h1 class="text-4xl font-bold tracking-tight">🏠 ماركت الكابينة</h1>
         <p class="text-yellow-400 mt-2 font-medium">تسوق بذكاء.. نصلك أينما كنت</p>
     </header>
 
-    <main class="max-w-md mx-auto px-4 space-y-8">
-        
-        <section>
-            <h2 class="text-xl font-bold text-blue-900 mb-4 flex items-center gap-2">
-                <span class="w-2 h-6 yellow-btn rounded-full"></span>
-                قائمة المنتجات
-            </h2>
-
-            <div id="products-container" class="space-y-4">
-                </div>
-        </section>
-
+    <main class="max-w-md mx-auto px-4">
+        <div id="loading-spinner" class="text-center py-10 text-blue-900 font-bold">جاري تحديث قائمة المنتجات...</div>
+        <div id="products-container" class="space-y-4"></div>
     </main>
 
-    <div id="floating-cart" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md bg-blue-900 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center hidden transition-all z-50 border-t-4 border-yellow-400">
+    <div id="floating-cart" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md bg-blue-900 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center hidden z-50 border-t-4 border-yellow-400">
         <div class="flex items-center gap-3">
-            <div class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-full flex items-center justify-center font-bold shadow-sm">
+            <div class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-full flex items-center justify-center font-bold">
                 <span id="cart-count">0</span>
             </div>
             <div>
-                <p class="text-sm text-yellow-300">إجمالي السلة:</p>
+                <p class="text-xs text-yellow-300">الإجمالي:</p>
                 <p class="font-bold text-lg"><span id="cart-total">0</span> د.ع</p>
             </div>
         </div>
-        <button onclick="sendOrderViaWhatsApp()" class="bg-yellow-400 hover:bg-yellow-300 text-blue-900 py-2 px-6 rounded-xl font-bold transition-colors shadow-md active:scale-95">
+        <button onclick="sendOrderViaWhatsApp()" class="bg-yellow-400 hover:bg-yellow-300 text-blue-900 py-2 px-6 rounded-xl font-bold transition-all active:scale-95 shadow-md">
             إرسال الطلب 📲
         </button>
     </div>
 
-
     <script>
-        // ==========================================
-        // 1. منطقة البيانات (هنا تضيف منتجاتك بسهولة)
-        // ==========================================
-        // فقط أضف سطراً جديداً في هذه القائمة لإضافة منتج!
-        const productsList = [
-            { name: 'رز بسمتي (5 كيلو)', price: 12500, image: 'rice.jpg' },
-            { name: 'زيت طعام (1 لتر)', price: 2250, image: 'oil.jpg' },
-            { name: 'معجون طماطم', price: 1000, image: 'tomato.png' },
-            { name: 'شاي أسود فاخر', price: 3500, image: 'tea.jpg' },
-            // مثال لإضافة منتج جديد:
-            // { name: 'اسم المنتج هنا', price: السعر_بالأرقام, image: 'اسم_الصورة.jpg' },
-        ];
+        // الرابط الخاص بك تم وضعه هنا بنجاح ✅
+        const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_Ja8kz5VAApLStZ9Y_erhYNqL3eXMafTSR9T8xkI82UzYQMS_efXuIyASXRKZTwYZGp69ExZB-7r3/pub?output=csv';
 
+        async function loadProducts() {
+            try {
+                const response = await fetch(sheetURL);
+                const csvData = await response.text();
+                const rows = csvData.split('\n').slice(1); 
+                
+                const products = rows.map(row => {
+                    const columns = row.split(',');
+                    if(columns.length >= 3) {
+                        return { 
+                            name: columns[0].replace(/"/g, '').trim(), 
+                            price: columns[1].replace(/"/g, '').trim(), 
+                            image: columns[2].replace(/"/g, '').trim() 
+                        };
+                    }
+                }).filter(p => p && p.name);
 
-        // ==========================================
-        // 2. دالة رسم المنتجات على الشاشة (القالب)
-        // ==========================================
-        function renderProducts() {
-            const container = document.getElementById('products-container');
-            let htmlContent = '';
-
-            // نمر على كل منتج في القائمة أعلاه وننشئ له كارت
-            productsList.forEach(product => {
-                // هذا هو "القالب" الذي سيتم تكراره
-                htmlContent += `
-                    <div class="bg-white p-4 rounded-2xl shadow-md flex justify-between items-center item-card transition-all active:scale-95">
-                        <div class="flex items-center gap-4 flex-1">
-                             <img src="images/${product.image}" alt="${product.name}" class="w-20 h-20 object-cover rounded-xl shadow-sm border border-gray-100 bg-gray-50" onerror="this.src='https://via.placeholder.com/80?text=No+Image'">
-                            
-                            <div>
-                                <h3 class="font-bold text-gray-800 text-lg leading-tight">${product.name}</h3>
-                                <p class="text-blue-800 font-bold mt-1">${product.price.toLocaleString()} د.ع</p>
-                            </div>
-                        </div>
-
-                        <button onclick="addToCart('${product.name}', ${product.price})" class="yellow-btn font-black w-12 h-12 rounded-2xl flex items-center justify-center shadow-lg hover:brightness-110 transition-all shrink-0 ml-2 active:scale-90">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                            </svg>
-                        </button>
-                    </div>
-                `;
-            });
-
-            // وضع كل الكروت التي أنشأناها داخل الحاوية في الصفحة
-            container.innerHTML = htmlContent;
+                renderProducts(products);
+                document.getElementById('loading-spinner').classList.add('hidden');
+            } catch (e) {
+                document.getElementById('loading-spinner').innerHTML = "⚠️ فشل في تحميل المنتجات. تأكد من إعدادات النشر في Google Sheets.";
+                console.error(e);
+            }
         }
 
-        // تشغيل دالة الرسم عند فتح الصفحة
-        renderProducts();
+        function renderProducts(items) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = items.map(item => `
+                <div class="bg-white p-4 rounded-2xl shadow-md flex justify-between items-center item-card transition-all active:scale-95">
+                    <div class="flex items-center gap-4 flex-1">
+                        <img src="images/${item.image}" class="w-20 h-20 object-cover rounded-xl bg-gray-50 border border-gray-100 shadow-sm" onerror="this.src='https://via.placeholder.com/80?text=📦'">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-lg leading-tight">${item.name}</h3>
+                            <p class="text-blue-800 font-bold mt-1">${parseInt(item.price).toLocaleString()} د.ع</p>
+                        </div>
+                    </div>
+                    <button onclick="addToCart('${item.name}', ${item.price})" class="yellow-btn w-12 h-12 rounded-2xl font-black text-xl flex items-center justify-center shadow-lg active:scale-90">
+                        +
+                    </button>
+                </div>
+            `).join('');
+        }
 
-
-        // ==========================================
-        // 3. أكواد السلة (نفس الكود السابق)
-        // ==========================================
         let cart = [];
         let total = 0;
 
-        function addToCart(itemName, itemPrice) {
-            cart.push({ name: itemName, price: itemPrice });
-            total += itemPrice;
-            updateCartDisplay();
-            
-            // اهتزاز بسيط للسلة عند الإضافة
-            const cartDom = document.getElementById('floating-cart');
-            cartDom.classList.add('animate-bounce');
-            setTimeout(() => cartDom.classList.remove('animate-bounce'), 300);
-        }
-
-        function updateCartDisplay() {
+        function addToCart(name, price) {
+            cart.push({name, price});
+            total += parseInt(price);
             document.getElementById('cart-count').innerText = cart.length;
             document.getElementById('cart-total').innerText = total.toLocaleString();
+            document.getElementById('floating-cart').classList.remove('hidden');
             
-            const floatingCart = document.getElementById('floating-cart');
-            if (cart.length > 0) {
-                floatingCart.classList.remove('hidden');
-            } else {
-                floatingCart.classList.add('hidden');
-            }
+            // اهتزاز بسيط للتأكيد
+            const cartDiv = document.getElementById('floating-cart');
+            cartDiv.classList.add('animate-bounce');
+            setTimeout(() => cartDiv.classList.remove('animate-bounce'), 300);
         }
 
         function sendOrderViaWhatsApp() {
             if (cart.length === 0) return;
-
-            let message = "مرحباً، أريد طلب المنتجات التالية من الماركت:%0a";
-            cart.forEach((item, index) => {
-                message += `${index + 1}- ${item.name} (${item.price.toLocaleString()} د.ع)%0a`;
-            });
-            message += `%0a*الإجمالي النهائي: ${total.toLocaleString()} د.ع*`;
-            message += "%0a%0aيرجى التوصيل إلى العنوان التالي:";
-
-            const phoneNumber = "9647700000000"; // ضع رقم الواتساب الخاص بك هنا
-            const waURL = `https://wa.me/${phoneNumber}?text=${message}`;
-            window.open(waURL, '_blank');
+            let msg = "مرحباً ماركت الكابينة، أريد طلب المواد التالية:%0a%0a";
+            cart.forEach((it, i) => msg += `${i+1}- ${it.name} (${parseInt(it.price).toLocaleString()} د.ع)%0a`);
+            msg += `%0a*الإجمالي: ${total.toLocaleString()} د.ع*`;
+            msg += "%0a%0aيرجى تأكيد الطلب.";
+            
+            const myNumber = "9647700000000"; // 🚩 استبدل هذا برقمك الحقيقي
+            window.open(`https://wa.me/${myNumber}?text=${msg}`);
         }
+
+        loadProducts();
     </script>
 </body>
 </html>
