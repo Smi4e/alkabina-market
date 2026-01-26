@@ -8,9 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f0f2f5; }
-        .navy-bg { background-color: #1e3a8a; }
-        .yellow-btn { background-color: #facc15; color: #1e3a8a; }
-        .item-card { border-right: 5px solid #facc15; }
+        .navy-bg { background-color: #1e3a8a; } /* اللون النيلي */
+        .yellow-btn { background-color: #facc15; color: #1e3a8a; } /* اللون الأصفر */
+        .item-card { border-right: 5px solid #facc15; transition: transform 0.2s; }
+        .item-card:active { transform: scale(0.97); }
     </style>
 </head>
 <body class="pb-32">
@@ -21,42 +22,49 @@
     </header>
 
     <main class="max-w-md mx-auto px-4">
-        <div id="loading-spinner" class="text-center py-10 text-blue-900 font-bold">جاري تحديث قائمة المنتجات...</div>
+        <div id="loading-spinner" class="text-center py-10 text-blue-900 font-bold flex flex-col items-center gap-3">
+            <div class="w-8 h-8 border-4 border-blue-900 border-t-yellow-400 rounded-full animate-spin"></div>
+            جاري تحديث قائمة المنتجات...
+        </div>
+
         <div id="products-container" class="space-y-4"></div>
     </main>
 
-    <div id="floating-cart" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[90%] max-w-md bg-blue-900 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center hidden z-50 border-t-4 border-yellow-400">
+    <div id="floating-cart" class="fixed bottom-4 left-1/2 transform -translate-x-1/2 w-[92%] max-w-md bg-blue-900 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center hidden z-50 border-t-4 border-yellow-400">
         <div class="flex items-center gap-3">
-            <div class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-full flex items-center justify-center font-bold">
+            <div class="bg-yellow-400 text-blue-900 min-w-[40px] h-10 rounded-full flex items-center justify-center font-bold shadow-inner">
                 <span id="cart-count">0</span>
             </div>
             <div>
-                <p class="text-xs text-yellow-300">الإجمالي:</p>
-                <p class="font-bold text-lg"><span id="cart-total">0</span> د.ع</p>
+                <p class="text-xs text-yellow-300">إجمالي الطلب:</p>
+                <p class="font-bold text-lg leading-none"><span id="cart-total">0</span> د.ع</p>
             </div>
         </div>
-        <button onclick="sendOrderViaWhatsApp()" class="bg-yellow-400 hover:bg-yellow-300 text-blue-900 py-2 px-6 rounded-xl font-bold transition-all active:scale-95 shadow-md">
+        <button onclick="sendOrderViaWhatsApp()" class="bg-yellow-400 hover:bg-yellow-300 text-blue-900 py-3 px-6 rounded-xl font-bold transition-all active:scale-95 shadow-md flex items-center gap-2">
             إرسال الطلب 📲
         </button>
     </div>
 
     <script>
-        // الرابط الخاص بك تم وضعه هنا بنجاح ✅
+        // رابط جدول بيانات جوجل (Google Sheets) الخاص بك
         const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_Ja8kz5VAApLStZ9Y_erhYNqL3eXMafTSR9T8xkI82UzYQMS_efXuIyASXRKZTwYZGp69ExZB-7r3/pub?output=csv';
 
+        // دالة جلب البيانات من الجدول
         async function loadProducts() {
             try {
                 const response = await fetch(sheetURL);
                 const csvData = await response.text();
+                // تقسيم البيانات إلى أسطر وتجاهل الصف الأول (العناوين)
                 const rows = csvData.split('\n').slice(1); 
                 
                 const products = rows.map(row => {
                     const columns = row.split(',');
-                    if(columns.length >= 3) {
+                    // التأكد من وجود بيانات في السطر
+                    if(columns.length >= 2) {
                         return { 
                             name: columns[0].replace(/"/g, '').trim(), 
                             price: columns[1].replace(/"/g, '').trim(), 
-                            image: columns[2].replace(/"/g, '').trim() 
+                            image: columns[2] ? columns[2].replace(/"/g, '').trim() : ''
                         };
                     }
                 }).filter(p => p && p.name);
@@ -64,57 +72,13 @@
                 renderProducts(products);
                 document.getElementById('loading-spinner').classList.add('hidden');
             } catch (e) {
-                document.getElementById('loading-spinner').innerHTML = "⚠️ فشل في تحميل المنتجات. تأكد من إعدادات النشر في Google Sheets.";
+                document.getElementById('loading-spinner').innerHTML = "⚠️ عذراً، حدث خطأ أثناء تحميل البيانات.";
                 console.error(e);
             }
         }
 
+        // دالة عرض المنتجات في الصفحة
         function renderProducts(items) {
             const container = document.getElementById('products-container');
             container.innerHTML = items.map(item => `
-                <div class="bg-white p-4 rounded-2xl shadow-md flex justify-between items-center item-card transition-all active:scale-95">
-                    <div class="flex items-center gap-4 flex-1">
-                        <img src="images/${item.image}" class="w-20 h-20 object-cover rounded-xl bg-gray-50 border border-gray-100 shadow-sm" onerror="this.src='https://via.placeholder.com/80?text=📦'">
-                        <div>
-                            <h3 class="font-bold text-gray-800 text-lg leading-tight">${item.name}</h3>
-                            <p class="text-blue-800 font-bold mt-1">${parseInt(item.price).toLocaleString()} د.ع</p>
-                        </div>
-                    </div>
-                    <button onclick="addToCart('${item.name}', ${item.price})" class="yellow-btn w-12 h-12 rounded-2xl font-black text-xl flex items-center justify-center shadow-lg active:scale-90">
-                        +
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        let cart = [];
-        let total = 0;
-
-        function addToCart(name, price) {
-            cart.push({name, price});
-            total += parseInt(price);
-            document.getElementById('cart-count').innerText = cart.length;
-            document.getElementById('cart-total').innerText = total.toLocaleString();
-            document.getElementById('floating-cart').classList.remove('hidden');
-            
-            // اهتزاز بسيط للتأكيد
-            const cartDiv = document.getElementById('floating-cart');
-            cartDiv.classList.add('animate-bounce');
-            setTimeout(() => cartDiv.classList.remove('animate-bounce'), 300);
-        }
-
-        function sendOrderViaWhatsApp() {
-            if (cart.length === 0) return;
-            let msg = "مرحباً ماركت الكابينة، أريد طلب المواد التالية:%0a%0a";
-            cart.forEach((it, i) => msg += `${i+1}- ${it.name} (${parseInt(it.price).toLocaleString()} د.ع)%0a`);
-            msg += `%0a*الإجمالي: ${total.toLocaleString()} د.ع*`;
-            msg += "%0a%0aيرجى تأكيد الطلب.";
-            
-            const myNumber = "9647700000000"; // 🚩 استبدل هذا برقمك الحقيقي
-            window.open(`https://wa.me/${myNumber}?text=${msg}`);
-        }
-
-        loadProducts();
-    </script>
-</body>
-</html>
+                <div class="bg-white
