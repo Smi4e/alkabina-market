@@ -21,7 +21,7 @@
 
     <header class="navy-blue text-white pt-10 pb-6 px-6 text-center rounded-b-[40px] shadow-xl border-b-4 border-yellow-400">
         <h1 class="text-3xl font-bold text-yellow-400">🏠 ماركت الكابينة</h1>
-        <p class="text-white/80 text-sm mt-1 font-bold">كل احتياجاتك بضغطة زر</p>
+        <p class="text-white/80 text-sm mt-1 font-bold">تسوق بذكاء.. استلم براحة</p>
     </header>
 
     <div class="sticky top-0 z-40 p-4 bg-slate-100/95 backdrop-blur-md">
@@ -41,23 +41,18 @@
             <div class="bg-yellow-400 text-blue-900 w-12 h-12 rounded-full flex items-center justify-center font-black text-xl" id="cart-count">0</div>
             <p class="text-xl font-bold"><span id="total-price">0</span> د.ع</p>
         </div>
-        <button onclick="openModal()" class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-2xl font-black">اطلب الآن</button>
+        <button onclick="openModal()" class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-2xl font-black active:scale-95 transition">اطلب الآن</button>
     </div>
 
     <div id="order-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[35px] p-6 shadow-2xl">
-            <h2 class="text-2xl font-bold text-blue-900 text-center mb-4">تأكيد الطلب 📋</h2>
-            <div id="cart-summary" class="mb-4 max-h-48 overflow-y-auto text-sm space-y-2 border-b border-dashed pb-4"></div>
+            <h2 class="text-2xl font-bold text-blue-900 text-center mb-4">مراجعة الوصل 📋</h2>
+            <div id="cart-summary" class="mb-4 max-h-48 overflow-y-auto text-sm space-y-2 border-b border-dashed pb-4 px-1"></div>
             
             <div class="space-y-4">
                 <input type="text" id="cust-address" placeholder="📍 العنوان (الحي، الزقاق، الدار)" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right">
                 
-                <select id="delivery-time" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right font-bold">
-                    <option value="بأسرع وقت">🚀 بأسرع وقت</option>
-                    <option value="بعد ساعة">🕙 بعد ساعة</option>
-                    <option value="بعد ساعتين">🕙 بعد ساعتين</option>
-                    <option value="المساء">🌙 في المساء</option>
-                </select>
+                <input type="text" id="delivery-time" placeholder="⏰ وقت الاستلام (مثلاً: بـ 8 مساءً)" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right">
 
                 <div class="text-2xl font-black text-blue-900 flex justify-between items-center bg-yellow-50 p-3 rounded-2xl">
                     <span>الإجمالي:</span>
@@ -103,17 +98,17 @@
             document.getElementById('items-grid').innerHTML = filtered.map(p => {
                 const qty = cart[p.name] ? cart[p.name].qty : 0;
                 const img = p.img || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=1e3a8a&color=fff`;
-                return `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card">
+                return `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card border border-gray-100">
                     <div class="flex items-center gap-4">
-                        <img src="${img}" class="w-16 h-16 rounded-2xl object-cover bg-gray-50">
+                        <img src="${img}" class="w-16 h-16 rounded-2xl object-cover bg-gray-50 shadow-inner">
                         <div class="text-right">
-                            <h3 class="font-bold text-gray-800 text-sm">${p.name}</h3>
-                            <p class="text-blue-700 font-black">${p.price.toLocaleString()} د.ع</p>
+                            <h3 class="font-bold text-gray-800 text-sm leading-tight">${p.name}</h3>
+                            <p class="text-blue-700 font-black mt-1">${p.price.toLocaleString()} د.ع</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
                         ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><span class="font-bold text-blue-900">${qty}</span>` : ''}
-                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md">+</button>
+                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 transition">+</button>
                     </div>
                 </div>`;
             }).join('');
@@ -142,7 +137,7 @@
 
         function openModal() {
             let h = '';
-            for (let id in cart) h += `<div class="flex justify-between py-1 border-b border-dashed"><span>${id} (×${cart[id].qty})</span><span class="font-bold">${(cart[id].qty * cart[id].price).toLocaleString()}</span></div>`;
+            for (let id in cart) h += `<div class="flex justify-between py-1 border-b border-dashed text-gray-700"><span>${id} (×${cart[id].qty})</span><span class="font-bold text-blue-900">${(cart[id].qty * cart[id].price).toLocaleString()}</span></div>`;
             document.getElementById('cart-summary').innerHTML = h;
             document.getElementById('order-modal').classList.remove('hidden');
         }
@@ -151,18 +146,20 @@
 
         function sendToWhatsApp() {
             const addr = document.getElementById('cust-address').value.trim() || "لم يذكر";
-            const time = document.getElementById('delivery-time').value;
+            const timePref = document.getElementById('delivery-time').value.trim() || "بأسرع وقت";
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-GB');
-            const timeStr = now.getHours() + ":" + now.getMinutes().toString().padStart(2, '0');
+            const h = now.getHours() % 12 || 12;
+            const m = now.getMinutes().toString().padStart(2, '0');
+            const ampm = now.getHours() >= 12 ? 'مساءً' : 'صباحاً';
 
             let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a━━━━━━━━━━━━━━━%0a`;
-            msg += `*التاريخ:* ${dateStr}%0a*الوقت:* ${timeStr}%0a━━━━━━━━━━━━━━━%0a`;
+            msg += `*التاريخ:* ${dateStr}%0a*وقت الطلب:* ${h}:${m} ${ampm}%0a━━━━━━━━━━━━━━━%0a`;
             for (let id in cart) {
                 const sub = (cart[id].qty * cart[id].price).toLocaleString();
                 msg += `• ${id}%0a   (${cart[id].price.toLocaleString()}) × ${cart[id].qty} = ${sub} د.ع%0a`;
             }
-            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a*⏰ التوصيل:* ${time}%0a━━━━━━━━━━━━━━━%0aيرجى التجهيز.. شكراً!`;
+            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a*⏰ موعد الاستلام المفضّل:* ${timePref}%0a━━━━━━━━━━━━━━━%0aيرجى التجهيز.. شكراً!`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
         init();
