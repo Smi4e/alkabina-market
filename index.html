@@ -7,7 +7,7 @@
     
     <link rel="apple-touch-icon" href="icon.png.JPG">
     <link rel="icon" type="image/jpeg" href="icon.png.JPG">
-    <link rel="manifest" href="manifest.json?v=400">
+    <link rel="manifest" href="manifest.json?v=1002">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -20,22 +20,21 @@
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; user-select: none; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
         .navy-blue { background-color: #1e3a8a; }
         .category-btn.active { background-color: #facc15; color: #1e3a8a; border-color: #1e3a8a; transform: scale(1.05); }
-        .product-card { border-right: 6px solid #1e3a8a; transition: all 0.2s; }
+        .product-card { border-right: 6px solid #1e3a8a; transition: transform 0.1s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        /* تحسين مظهر التحميل */
-        #loading-screen { position: fixed; inset: 0; background: white; z-index: 100; display: flex; flex-direction: column; justify-content: center; items-center: center; }
+        #loading-screen { position: fixed; inset: 0; background: white; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
     </style>
 </head>
 <body class="pb-40">
 
     <div id="loading-screen">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-900"></div>
-        <p class="mt-4 font-bold text-blue-900">جاري تحديث الأسعار...</p>
+        <p class="mt-4 font-bold text-blue-900">جاري تحديث قائمة الأسعار...</p>
     </div>
 
     <header class="navy-blue text-white pt-10 pb-6 px-6 text-center rounded-b-[40px] shadow-xl border-b-4 border-yellow-400">
         <h1 class="text-3xl font-bold text-yellow-400">🏠 ماركت الكابينة</h1>
-        <p class="text-white/80 text-sm mt-1 font-bold text-center">كل احتياجاتك بضغطة زر</p>
+        <p class="text-white/80 text-sm mt-1 font-bold">تسوق بذكاء وسهولة</p>
     </header>
 
     <div class="sticky top-0 z-40 p-4 bg-slate-100/90 backdrop-blur-md">
@@ -47,7 +46,9 @@
     </div>
 
     <main class="max-w-md mx-auto px-4 mt-4">
-        <div id="items-grid" class="space-y-4"></div>
+        <div id="items-grid" class="space-y-4 text-center text-gray-400 py-10">
+            جاري معالجة البيانات...
+        </div>
     </main>
 
     <div id="cart-float" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-blue-900 text-white p-5 rounded-[30px] shadow-2xl flex justify-between items-center hidden z-50">
@@ -59,11 +60,11 @@
     </div>
 
     <div id="order-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-[35px] p-6 shadow-2xl text-right">
+        <div class="bg-white w-full max-sm rounded-[35px] p-6 shadow-2xl text-right">
             <h2 class="text-2xl font-bold text-blue-900 text-center mb-6">تأكيد الطلب 📋</h2>
             <div id="cart-summary" class="mb-4 max-h-40 overflow-y-auto text-sm space-y-2 border-b border-dashed pb-4 px-1 font-bold text-gray-700"></div>
             <div class="space-y-4 font-bold">
-                <input type="text" id="cust-address" placeholder="📍 العنوان (الحي، الزقاق، الدار)" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right">
+                <input type="text" id="cust-address" placeholder="📍 العنوان الكامل ورقم الهاتف" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right">
                 <div class="text-2xl font-black text-blue-900 flex justify-between items-center bg-yellow-50 p-3 rounded-2xl">
                     <span>الإجمالي:</span>
                     <span><span id="final-price">0</span> د.ع</span>
@@ -108,8 +109,7 @@
                 document.getElementById('loading-screen').style.display = 'none';
                 render();
             } catch (e) { 
-                console.error("Error loading data");
-                document.getElementById('loading-screen').innerHTML = "⚠️ فشل في تحميل البيانات، تأكد من الإنترنت.";
+                document.getElementById('loading-screen').innerHTML = "⚠️ فشل التحميل، يرجى التأكد من الإنترنت.";
             }
         }
 
@@ -122,7 +122,10 @@
                 (p.name.toLowerCase().includes(q))
             );
 
-            grid.innerHTML = filtered.slice(0, 100).map(p => { // عرض أول 100 مادة فقط لسرعة الأداء
+            // تحسين: عرض أول 40 مادة فقط عند التصفح العام لزيادة السرعة
+            const displayList = q.length > 0 ? filtered.slice(0, 80) : filtered.slice(0, 40);
+
+            grid.innerHTML = displayList.length > 0 ? displayList.map(p => {
                 const qty = cart[p.name] ? cart[p.name].qty : 0;
                 return `
                 <div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card border border-gray-100">
@@ -141,7 +144,7 @@
                         <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 transition">+</button>
                     </div>
                 </div>`;
-            }).join('');
+            }).join('') : `<p class="text-center text-gray-400 py-10 font-bold">لا توجد مواد بهذا الاسم</p>`;
         }
 
         function updateQty(n, c, p) {
@@ -166,8 +169,9 @@
         function filterByCategory(c) {
             currentCategory = c;
             document.querySelectorAll('.category-btn, #btn-all').forEach(b => {
-                b.classList.toggle('active', b.innerText === c);
+                b.classList.toggle('active', b.textContent === c);
             });
+            window.scrollTo({top: 0, behavior: 'smooth'});
             render();
         }
 
