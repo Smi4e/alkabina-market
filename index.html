@@ -22,7 +22,7 @@
 
     <header class="navy-blue text-white pt-10 pb-6 px-6 text-center rounded-b-[40px] shadow-xl border-b-4 border-yellow-400">
         <h1 class="text-3xl font-bold text-yellow-400">🏠 ماركت الكابينة</h1>
-        <p class="text-white/80 text-sm mt-1 font-bold">اختر وقتك.. واحنا نجهزك</p>
+        <p class="text-white/80 text-sm mt-1 font-bold">كل احتياجاتك بضغطة زر</p>
     </header>
 
     <div class="sticky top-0 z-40 p-4 bg-slate-100/95 backdrop-blur-md">
@@ -42,22 +42,22 @@
             <div class="bg-yellow-400 text-blue-900 w-12 h-12 rounded-full flex items-center justify-center font-black text-xl" id="cart-count">0</div>
             <p class="text-xl font-bold"><span id="total-price">0</span> د.ع</p>
         </div>
-        <button onclick="openModal()" class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-2xl font-black">اطلب الآن</button>
+        <button onclick="openModal()" class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-2xl font-black active:scale-95 transition">اطلب الآن</button>
     </div>
 
     <div id="order-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[35px] p-6 shadow-2xl">
-            <h2 class="text-2xl font-bold text-blue-900 text-center mb-4">تأكيد الطلب 📋</h2>
+            <h2 class="text-2xl font-bold text-blue-900 text-center mb-6">تأكيد الطلب 📋</h2>
+            
             <div id="cart-summary" class="mb-4 max-h-40 overflow-y-auto text-sm space-y-2 border-b border-dashed pb-4 px-1 text-right"></div>
             
             <div class="space-y-4">
                 <input type="text" id="cust-address" placeholder="📍 العنوان (الحي، الزقاق، الدار)" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right">
                 
                 <div class="relative">
-                    <label class="block text-right text-[10px] font-bold text-blue-900 mr-2 mb-1">⏰ اختر موعد الاستلام المفضّل:</label>
                     <select id="delivery-time" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right font-bold text-blue-900">
-                        <option value="بأسرع وقت">🚀 بأسرع وقت ممكن</option>
-                        </select>
+                        <option value="بأسرع وقت">🚀 موعد التوصيل: بأسرع وقت</option>
+                    </select>
                 </div>
 
                 <div class="text-2xl font-black text-blue-900 flex justify-between items-center bg-yellow-50 p-3 rounded-2xl">
@@ -67,7 +67,7 @@
                 
                 <div class="flex gap-3">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold">رجوع</button>
-                    <button onclick="sendToWhatsApp()" class="flex-[2] py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg">إرسال للواتساب 📲</button>
+                    <button onclick="sendToWhatsApp()" class="flex-[2] py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg">إرسال الوصل 📲</button>
                 </div>
             </div>
         </div>
@@ -77,18 +77,16 @@
         const API_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_Ja8kz5VAApLStZ9Y_erhYNqL3eXMafTSR9T8xkI82UzYQMS_efXuIyASXRKZTwYZGp69ExZB-7r3/pub?output=csv';
         let allProducts = [], cart = {}, currentCategory = 'الكل';
 
-        // توليد قائمة الأوقات بصيغة 12 ساعة
         function generateTimeSlots() {
             const select = document.getElementById('delivery-time');
             const hours = [8,9,10,11,12,1,2,3,4,5,6,7,8,9,10,11];
             hours.forEach((h, index) => {
-                let period = (index < 4) ? "صباحاً" : "مساءً";
-                if (index === 4) period = "ظهراً";
-                const timeStr = `${h}:00 ${period}`;
-                const option = document.createElement('option');
-                option.value = timeStr;
-                option.text = `🕒 الساعة ${timeStr}`;
-                select.appendChild(option);
+                let p = (index < 4) ? "صباحاً" : "مساءً";
+                if (index === 4) p = "ظهراً";
+                const opt = document.createElement('option');
+                opt.value = `${h}:00 ${p}`;
+                opt.text = `🕒 الساعة ${h}:00 ${p}`;
+                select.appendChild(opt);
             });
         }
 
@@ -102,86 +100,77 @@
                 allProducts = lines.map(line => {
                     const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     if(parts.length >= 2) {
-                        let cat = parts[3] ? parts[3].trim().replace(/"/g, '') : 'أخرى';
-                        if (cat && cat !== "عام") cats.add(cat);
-                        return { name: parts[0].replace(/"/g, '').trim(), price: parseInt(parts[1]) || 0, img: parts[2] || '', cat: cat };
+                        let c = parts[3] ? parts[3].trim().replace(/"/g, '') : 'أخرى';
+                        if (c && c !== "عام") cats.add(c);
+                        return { name: parts[0].replace(/"/g, '').trim(), price: parseInt(parts[1]) || 0, img: parts[2] || '', cat: c };
                     }
                 }).filter(p => p && p.name);
-                document.getElementById('categories-list').innerHTML = Array.from(cats).map(c => `
-                    <button onclick="filterByCategory('${c}')" class="category-btn px-6 py-2 rounded-full font-bold bg-white text-blue-900 border-2 border-blue-900 whitespace-nowrap">${c}</button>
-                `).join('');
+                document.getElementById('categories-list').innerHTML = Array.from(cats).map(c => `<button onclick="filterByCategory('${c}')" class="category-btn px-6 py-2 rounded-full font-bold bg-white text-blue-900 border-2 border-blue-900 whitespace-nowrap">${c}</button>`).join('');
                 render();
             } catch (e) { console.error(e); }
         }
 
         function render() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allProducts.filter(p => (currentCategory === 'الكل' || p.cat === currentCategory) && p.name.toLowerCase().includes(query));
-            document.getElementById('items-grid').innerHTML = filtered.map(p => {
+            const q = document.getElementById('searchInput').value.toLowerCase();
+            const f = allProducts.filter(p => (currentCategory === 'الكل' || p.cat === currentCategory) && p.name.toLowerCase().includes(q));
+            document.getElementById('items-grid').innerHTML = f.map(p => {
                 const qty = cart[p.name] ? cart[p.name].qty : 0;
-                const img = p.img || `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=1e3a8a&color=fff`;
                 return `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card border border-gray-100">
                     <div class="flex items-center gap-4">
-                        <img src="${img}" class="w-16 h-16 rounded-2xl object-cover bg-gray-50">
+                        <img src="${p.img || 'https://ui-avatars.com/api/?name='+p.name}" class="w-16 h-16 rounded-2xl object-cover bg-gray-50">
                         <div class="text-right">
-                            <h3 class="font-bold text-gray-800 text-sm leading-tight">${p.name}</h3>
+                            <h3 class="font-bold text-gray-800 text-sm">${p.name}</h3>
                             <p class="text-blue-700 font-black mt-1">${p.price.toLocaleString()} د.ع</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><span class="font-bold text-blue-900">${qty}</span>` : ''}
-                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 transition">+</button>
+                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><span class="font-bold">${qty}</span>` : ''}
+                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md">+</button>
                     </div>
                 </div>`;
             }).join('');
         }
 
-        function updateQty(name, chg, prc) {
-            if (!cart[name] && chg > 0) cart[name] = { qty: 0, price: prc };
-            if (cart[name]) { cart[name].qty += chg; if (cart[name].qty <= 0) delete cart[name]; }
+        function updateQty(n, c, p) {
+            if (!cart[n] && c > 0) cart[n] = { qty: 0, price: p };
+            if (cart[n]) { cart[n].qty += c; if (cart[n].qty <= 0) delete cart[n]; }
             updateUI(); render();
         }
 
         function updateUI() {
-            let total = 0, count = 0;
-            for (let id in cart) { total += cart[id].qty * cart[id].price; count += cart[id].qty; }
-            document.getElementById('total-price').innerText = total.toLocaleString();
-            document.getElementById('final-price').innerText = total.toLocaleString();
-            document.getElementById('cart-count').innerText = count;
-            document.getElementById('cart-float').classList.toggle('hidden', count === 0);
+            let t = 0, c = 0;
+            for (let id in cart) { t += cart[id].qty * cart[id].price; c += cart[id].qty; }
+            document.getElementById('total-price').innerText = t.toLocaleString();
+            document.getElementById('final-price').innerText = t.toLocaleString();
+            document.getElementById('cart-count').innerText = c;
+            document.getElementById('cart-float').classList.toggle('hidden', c === 0);
         }
 
-        function filterByCategory(cat) {
-            currentCategory = cat;
-            document.querySelectorAll('.category-btn, #btn-all').forEach(b => b.classList.toggle('active', b.innerText === cat));
-            render();
-        }
-
+        function filterByCategory(c) { currentCategory = c; document.querySelectorAll('.category-btn, #btn-all').forEach(b => b.classList.toggle('active', b.innerText === c)); render(); }
         function openModal() {
             let h = '';
             for (let id in cart) h += `<div class="flex justify-between py-1 border-b border-dashed text-gray-700"><span>${id} (×${cart[id].qty})</span><span class="font-bold text-blue-900">${(cart[id].qty * cart[id].price).toLocaleString()}</span></div>`;
             document.getElementById('cart-summary').innerHTML = h;
             document.getElementById('order-modal').classList.remove('hidden');
         }
-
         function closeModal() { document.getElementById('order-modal').classList.add('hidden'); }
 
         function sendToWhatsApp() {
             const addr = document.getElementById('cust-address').value.trim() || "لم يذكر";
-            const timePref = document.getElementById('delivery-time').value;
+            const time = document.getElementById('delivery-time').value;
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-GB');
             const h = now.getHours() % 12 || 12;
             const m = now.getMinutes().toString().padStart(2, '0');
-            const ampm = now.getHours() >= 12 ? 'مساءً' : 'صباحاً';
+            const am = now.getHours() >= 12 ? 'مساءً' : 'صباحاً';
 
             let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a━━━━━━━━━━━━━━━%0a`;
-            msg += `*التاريخ:* ${dateStr}%0a*وقت الطلب:* ${h}:${m} ${ampm}%0a━━━━━━━━━━━━━━━%0a`;
+            msg += `*التاريخ:* ${dateStr}%0a*وقت الطلب:* ${h}:${m} ${am}%0a━━━━━━━━━━━━━━━%0a`;
             for (let id in cart) {
-                const sub = (cart[id].qty * cart[id].price).toLocaleString();
-                msg += `• ${id}%0a   (${cart[id].price.toLocaleString()}) × ${cart[id].qty} = ${sub} د.ع%0a`;
+                const total = (cart[id].qty * cart[id].price).toLocaleString();
+                msg += `• ${id}%0a   (${cart[id].price.toLocaleString()}) × ${cart[id].qty} = ${total} د.ع%0a`;
             }
-            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a*⏰ موعد الاستلام المفضّل:* ${timePref}%0a━━━━━━━━━━━━━━━%0aتم الطلب عبر التطبيق ✅`;
+            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a*⏰ موعد الاستلام:* ${time}%0a━━━━━━━━━━━━━━━%0aشكراً لتسوقكم!`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
         init();
