@@ -5,18 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ماركت الكابينة</title>
     
-    <link rel="apple-touch-icon" href="https://i.ibb.co/93ssz0fd/IMG-4204.png?v=1">
-    <link rel="icon" type="image/png" href="https://i.ibb.co/93ssz0fd/IMG-4204.png?v=1">
+    <link rel="apple-touch-icon" href="https://i.ibb.co/S76pM6mY/alkabina-logo.png">
+    <link rel="icon" type="image/png" href="https://i.ibb.co/S76pM6mY/alkabina-logo.png">
+    
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="الكابينة">
-    <link rel="manifest" href="manifest.json?v=1">
+    <link rel="manifest" href="manifest.json?v=2">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; user-select: none; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; user-select: none; -webkit-tap-highlight-color: transparent; }
         .navy-blue { background-color: #1e3a8a; }
         .category-btn.active { background-color: #facc15; color: #1e3a8a; border-color: #1e3a8a; transform: scale(1.05); }
         .product-card { border-right: 6px solid #1e3a8a; transition: 0.2s; }
@@ -51,7 +52,7 @@
     </div>
 
     <div id="order-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-sm rounded-[35px] p-6 shadow-2xl">
+        <div class="bg-white w-full max-sm rounded-[35px] p-6 shadow-2xl text-right">
             <h2 class="text-2xl font-bold text-blue-900 text-center mb-6">تأكيد الطلب 📋</h2>
             <div id="cart-summary" class="mb-4 max-h-40 overflow-y-auto text-sm space-y-2 border-b border-dashed pb-4 px-1 text-right"></div>
             <div class="space-y-4">
@@ -144,12 +145,14 @@
         }
 
         function filterByCategory(c) { currentCategory = c; document.querySelectorAll('.category-btn, #btn-all').forEach(b => b.classList.toggle('active', b.innerText === c)); render(); }
+        
         function openModal() {
             let h = '';
             for (let id in cart) h += `<div class="flex justify-between py-1 border-b border-dashed"><span>${id} (×${cart[id].qty})</span><span class="font-bold">${(cart[id].qty * cart[id].price).toLocaleString()}</span></div>`;
             document.getElementById('cart-summary').innerHTML = h;
             document.getElementById('order-modal').classList.remove('hidden');
         }
+
         function closeModal() { document.getElementById('order-modal').classList.add('hidden'); }
 
         function sendToWhatsApp() {
