@@ -6,35 +6,42 @@
     <title>ماركت الكابينة</title>
     
     <link rel="apple-touch-icon" href="icon.png.JPG">
-    <link rel="icon" type="image/png" href="icon.png.JPG">
-    
+    <link rel="icon" type="image/jpeg" href="icon.png.JPG">
+    <link rel="manifest" href="manifest.json?v=400">
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="الكابينة">
-    <link rel="manifest" href="manifest.json?v=300">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; user-select: none; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
         .navy-blue { background-color: #1e3a8a; }
         .category-btn.active { background-color: #facc15; color: #1e3a8a; border-color: #1e3a8a; transform: scale(1.05); }
-        .product-card { border-right: 6px solid #1e3a8a; }
+        .product-card { border-right: 6px solid #1e3a8a; transition: all 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        /* تحسين مظهر التحميل */
+        #loading-screen { position: fixed; inset: 0; background: white; z-index: 100; display: flex; flex-direction: column; justify-content: center; items-center: center; }
     </style>
 </head>
 <body class="pb-40">
 
+    <div id="loading-screen">
+        <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-900"></div>
+        <p class="mt-4 font-bold text-blue-900">جاري تحديث الأسعار...</p>
+    </div>
+
     <header class="navy-blue text-white pt-10 pb-6 px-6 text-center rounded-b-[40px] shadow-xl border-b-4 border-yellow-400">
         <h1 class="text-3xl font-bold text-yellow-400">🏠 ماركت الكابينة</h1>
-        <p class="text-white/80 text-sm mt-1 font-bold">كل احتياجاتك بضغطة زر</p>
+        <p class="text-white/80 text-sm mt-1 font-bold text-center">كل احتياجاتك بضغطة زر</p>
     </header>
 
     <div class="sticky top-0 z-40 p-4 bg-slate-100/90 backdrop-blur-md">
-        <input type="text" id="searchInput" onkeyup="render()" placeholder="🔍 ابحث عن مادة..." class="w-full p-4 rounded-2xl border-2 border-blue-900 shadow-sm outline-none text-right font-bold">
+        <input type="text" id="searchInput" oninput="render()" placeholder="🔍 ابحث عن مادة..." class="w-full p-4 rounded-2xl border-2 border-blue-900 shadow-sm outline-none text-right font-bold focus:ring-2 ring-yellow-400">
         <div id="categories-bar" class="flex gap-2 overflow-x-auto py-2 mt-2 no-scrollbar border-b pb-2">
-            <button onclick="filterByCategory('الكل')" id="btn-all" class="category-btn active px-6 py-2 rounded-full font-bold border-2 bg-white">الكل</button>
+            <button onclick="filterByCategory('الكل')" id="btn-all" class="category-btn active px-6 py-2 rounded-full font-bold border-2 bg-white whitespace-nowrap">الكل</button>
             <div id="categories-list" class="flex gap-2"></div>
         </div>
     </div>
@@ -79,35 +86,59 @@
                 const csv = await res.text();
                 const lines = csv.split('\n').slice(1);
                 const cats = new Set();
+                
                 allProducts = lines.map(line => {
                     const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
-                    if(parts.length >= 2) {
-                        let c = parts[3] ? parts[3].trim().replace(/"/g, '') : 'أخرى';
-                        if (c && c !== "عام") cats.add(c);
-                        return { name: parts[0].replace(/"/g, '').trim(), price: parseInt(parts[1]) || 0, img: parts[2] || '', cat: c };
+                    if(parts.length >= 2 && parts[0].trim() !== "") {
+                        let c = parts[3] ? parts[3].trim().replace(/"/g, '') : 'عام';
+                        if (c && c !== "" && c !== "عام") cats.add(c);
+                        return { 
+                            name: parts[0].replace(/"/g, '').trim(), 
+                            price: parseInt(parts[1].replace(/[^\d]/g, '')) || 0, 
+                            img: parts[2] ? parts[2].trim() : '', 
+                            cat: c 
+                        };
                     }
                 }).filter(p => p && p.name);
-                document.getElementById('categories-list').innerHTML = Array.from(cats).map(c => `<button onclick="filterByCategory('${c}')" class="category-btn px-6 py-2 rounded-full font-bold bg-white text-blue-900 border-2 border-blue-900 whitespace-nowrap">${c}</button>`).join('');
+
+                document.getElementById('categories-list').innerHTML = Array.from(cats).map(c => 
+                    `<button onclick="filterByCategory('${c}')" class="category-btn px-6 py-2 rounded-full font-bold bg-white text-blue-900 border-2 border-blue-900 whitespace-nowrap">${c}</button>`
+                ).join('');
+                
+                document.getElementById('loading-screen').style.display = 'none';
                 render();
-            } catch (e) { console.error("Error loading products"); }
+            } catch (e) { 
+                console.error("Error loading data");
+                document.getElementById('loading-screen').innerHTML = "⚠️ فشل في تحميل البيانات، تأكد من الإنترنت.";
+            }
         }
 
         function render() {
             const q = document.getElementById('searchInput').value.toLowerCase();
-            const f = allProducts.filter(p => (currentCategory === 'الكل' || p.cat === currentCategory) && p.name.toLowerCase().includes(q));
-            document.getElementById('items-grid').innerHTML = f.map(p => {
+            const grid = document.getElementById('items-grid');
+            
+            const filtered = allProducts.filter(p => 
+                (currentCategory === 'الكل' || p.cat === currentCategory) && 
+                (p.name.toLowerCase().includes(q))
+            );
+
+            grid.innerHTML = filtered.slice(0, 100).map(p => { // عرض أول 100 مادة فقط لسرعة الأداء
                 const qty = cart[p.name] ? cart[p.name].qty : 0;
-                return `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card border border-gray-100">
+                return `
+                <div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card border border-gray-100">
                     <div class="flex items-center gap-4 text-right">
-                        <img src="${p.img || 'https://ui-avatars.com/api/?name='+p.name}" class="w-16 h-16 rounded-2xl object-cover">
+                        <img src="${p.img || 'https://ui-avatars.com/api/?name='+p.name+'&background=random'}" class="w-16 h-16 rounded-2xl object-cover" loading="lazy">
                         <div>
                             <h3 class="font-bold text-gray-800 text-sm leading-tight">${p.name}</h3>
                             <p class="text-blue-700 font-black mt-1">${p.price.toLocaleString()} د.ع</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg font-bold text-lg">-</button><span class="font-bold text-blue-900 text-lg">${qty}</span>` : ''}
-                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md">+</button>
+                        ${qty > 0 ? `
+                            <button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg font-bold text-lg">-</button>
+                            <span class="font-bold text-blue-900 text-lg w-4 text-center">${qty}</span>
+                        ` : ''}
+                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 transition">+</button>
                     </div>
                 </div>`;
             }).join('');
@@ -115,8 +146,12 @@
 
         function updateQty(n, c, p) {
             if (!cart[n] && c > 0) cart[n] = { qty: 0, price: p };
-            if (cart[n]) { cart[n].qty += c; if (cart[n].qty <= 0) delete cart[n]; }
-            updateUI(); render();
+            if (cart[n]) { 
+                cart[n].qty += c; 
+                if (cart[n].qty <= 0) delete cart[n]; 
+            }
+            updateUI();
+            render();
         }
 
         function updateUI() {
@@ -128,13 +163,21 @@
             document.getElementById('cart-float').classList.toggle('hidden', c === 0);
         }
 
-        function filterByCategory(c) { currentCategory = c; document.querySelectorAll('.category-btn, #btn-all').forEach(b => b.classList.toggle('active', b.innerText === c)); render(); }
+        function filterByCategory(c) {
+            currentCategory = c;
+            document.querySelectorAll('.category-btn, #btn-all').forEach(b => {
+                b.classList.toggle('active', b.innerText === c);
+            });
+            render();
+        }
+
         function openModal() {
             let h = '';
             for (let id in cart) h += `<div class="flex justify-between py-1 border-b border-dashed"><span>${(cart[id].qty * cart[id].price).toLocaleString()}</span><span>${id} (×${cart[id].qty})</span></div>`;
             document.getElementById('cart-summary').innerHTML = h;
             document.getElementById('order-modal').classList.remove('hidden');
         }
+
         function closeModal() { document.getElementById('order-modal').classList.add('hidden'); }
 
         function sendToWhatsApp() {
@@ -144,6 +187,7 @@
             msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a━━━━━━━━━━━━━━━%0aتم الطلب عبر التطبيق ✅`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
+        
         init();
     </script>
 </body>
