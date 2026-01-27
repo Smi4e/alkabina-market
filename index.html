@@ -4,15 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ماركت الكابينة</title>
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e3a8a">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3703/3703171.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; user-select: none; }
         .navy-blue { background-color: #1e3a8a; }
-        .category-btn.active { background-color: #facc15; color: #1e3a8a; border-color: #1e3a8a; }
+        .category-btn.active { background-color: #facc15; color: #1e3a8a; border-color: #1e3a8a; transform: scale(1.05); }
         .product-card { border-right: 6px solid #1e3a8a; transition: 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         select { appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%231e3a8a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: left 1rem center; background-size: 1em; }
@@ -27,7 +32,7 @@
 
     <div class="sticky top-0 z-40 p-4 bg-slate-100/95 backdrop-blur-md">
         <input type="text" id="searchInput" onkeyup="render()" placeholder="🔍 ابحث عن مادة..." class="w-full p-4 rounded-2xl border-2 border-blue-900 shadow-md outline-none text-right">
-        <div id="categories-bar" class="flex gap-2 overflow-x-auto py-2 mt-2 no-scrollbar">
+        <div id="categories-bar" class="flex gap-2 overflow-x-auto py-2 mt-2 no-scrollbar border-b pb-2">
             <button onclick="filterByCategory('الكل')" id="btn-all" class="category-btn active px-6 py-2 rounded-full font-bold border-2 bg-white">الكل</button>
             <div id="categories-list" class="flex gap-2"></div>
         </div>
@@ -67,7 +72,7 @@
                 
                 <div class="flex gap-3">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold">رجوع</button>
-                    <button onclick="sendToWhatsApp()" class="flex-[2] py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg">إرسال الوصل 📲</button>
+                    <button onclick="sendToWhatsApp()" class="flex-[2] py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg text-lg">إرسال الوصل 📲</button>
                 </div>
             </div>
         </div>
@@ -119,13 +124,13 @@
                     <div class="flex items-center gap-4">
                         <img src="${p.img || 'https://ui-avatars.com/api/?name='+p.name}" class="w-16 h-16 rounded-2xl object-cover bg-gray-50">
                         <div class="text-right">
-                            <h3 class="font-bold text-gray-800 text-sm">${p.name}</h3>
+                            <h3 class="font-bold text-gray-800 text-sm leading-tight">${p.name}</h3>
                             <p class="text-blue-700 font-black mt-1">${p.price.toLocaleString()} د.ع</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><span class="font-bold">${qty}</span>` : ''}
-                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md">+</button>
+                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><span class="font-bold text-blue-900">${qty}</span>` : ''}
+                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 transition">+</button>
                     </div>
                 </div>`;
             }).join('');
@@ -147,6 +152,7 @@
         }
 
         function filterByCategory(c) { currentCategory = c; document.querySelectorAll('.category-btn, #btn-all').forEach(b => b.classList.toggle('active', b.innerText === c)); render(); }
+        
         function openModal() {
             let h = '';
             for (let id in cart) h += `<div class="flex justify-between py-1 border-b border-dashed text-gray-700"><span>${id} (×${cart[id].qty})</span><span class="font-bold text-blue-900">${(cart[id].qty * cart[id].price).toLocaleString()}</span></div>`;
@@ -170,7 +176,7 @@
                 const total = (cart[id].qty * cart[id].price).toLocaleString();
                 msg += `• ${id}%0a   (${cart[id].price.toLocaleString()}) × ${cart[id].qty} = ${total} د.ع%0a`;
             }
-            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a*⏰ موعد الاستلام:* ${time}%0a━━━━━━━━━━━━━━━%0aشكراً لتسوقكم!`;
+            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a*⏰ موعد الاستلام:* ${time}%0a━━━━━━━━━━━━━━━%0aتم الطلب عبر التطبيق ✅`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
         init();
