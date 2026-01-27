@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ماركت الكابينة</title>
     
+    <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#1e3a8a">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="الكابينة">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3703/3703171.png">
-    <link rel="manifest" href="data:application/manifest+json;base64,ewogICJuYW1lIjogIm1hcmtldC1hbGthYmluYSIsCiAgInNob3J0X25hbWUiOiAi2KfZhNmD2KfYqNmK2YbZhyIsCiAgInN0YXJ0X3VybCI6ICIuIiwKICAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwKICAiYmFja2dyb3VuZF9jb2xvciI6ICIjMWUzYThhIiwKICAidGhlbWVfY29sb3IiOiAiIzFlM2E4YSIsCiAgImljb25zIjogW3sgInNyYyI6ICJodHRwczovL2Nkbi1pY29ucy1wbmcuZmxhdGljb24uY29tLzUxMi8zNzAzLzM3MDMxNzEucG5nIiwgInNpemVzIjogIjUxMng1MTIiLCAidHlwZSI6ICJpbWFnZS9wbmciIH1dCn0=">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
@@ -28,18 +27,12 @@
 
     <header class="navy-blue text-white pt-10 pb-6 px-6 text-center rounded-b-[40px] shadow-xl border-b-4 border-yellow-400">
         <h1 class="text-3xl font-bold text-yellow-400">🏠 ماركت الكابينة</h1>
-        <p class="text-white/80 text-sm mt-1">تطبيق التسوق المباشر</p>
-        
-        <div class="flex justify-center gap-6 mt-5">
-            <a href="https://www.facebook.com/share/184Nq1sgfX/?mibextid=wwXIfr" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" class="w-6 h-6"></a>
-            <a href="https://www.instagram.com/alkabeena.krb?igsh=MXZhYmNiNDBiZ2ZpNA%3D%3D&utm_source=qr" target="_blank"><img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" class="w-6 h-6"></a>
-            <a href="tel:07760982880"><img src="https://cdn-icons-png.flaticon.com/512/3059/3059590.png" class="w-6 h-6"></a>
-        </div>
+        <p class="text-white/80 text-sm mt-1 font-bold">تطبيق التسوق الذكي</p>
     </header>
 
     <div class="sticky top-0 z-40 p-4 bg-slate-100/95 backdrop-blur-md">
         <input type="text" id="searchInput" onkeyup="render()" placeholder="🔍 ابحث عن مادة..." class="w-full p-4 rounded-2xl border-2 border-blue-900 shadow-md outline-none text-right">
-        <div id="categories-bar" class="flex gap-2 overflow-x-auto py-2 mt-2 no-scrollbar">
+        <div id="categories-bar" class="flex gap-2 overflow-x-auto py-2 mt-2 no-scrollbar border-b pb-2">
             <button onclick="filterByCategory('الكل')" id="btn-all" class="category-btn active px-6 py-2 rounded-full font-bold border-2">الكل</button>
             <div id="categories-list" class="flex gap-2"></div>
         </div>
@@ -54,23 +47,20 @@
         <img id="viewer-img" src="" class="shadow-2xl border-4 border-white/20">
     </div>
 
-    <div id="cart-float" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-blue-900 text-white p-5 rounded-[30px] shadow-2xl flex justify-between items-center hidden z-50 animate-bounce-short">
+    <div id="cart-float" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-blue-900 text-white p-5 rounded-[30px] shadow-2xl flex justify-between items-center hidden z-50">
         <div class="flex items-center gap-4">
-            <div class="bg-yellow-400 text-blue-900 w-12 h-12 rounded-full flex items-center justify-center font-black text-xl shadow-inner" id="cart-count">0</div>
+            <div class="bg-yellow-400 text-blue-900 w-12 h-12 rounded-full flex items-center justify-center font-black text-xl" id="cart-count">0</div>
             <p class="text-xl font-bold"><span id="total-price">0</span> د.ع</p>
         </div>
-        <button onclick="openModal()" class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-2xl font-black shadow-lg active:scale-95 transition">تأكيد الطلب</button>
+        <button onclick="openModal()" class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-2xl font-black">اطلب الآن</button>
     </div>
 
     <div id="order-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-[35px] p-6 shadow-2xl overflow-hidden">
+        <div class="bg-white w-full max-w-sm rounded-[35px] p-6 shadow-2xl">
             <div class="text-center mb-4 border-b pb-2">
-                <h2 class="text-2xl font-bold text-blue-900 italic">مـاركـت الـكـابـيـنـة</h2>
-                <p class="text-gray-400 text-xs">مراجعة الوصل قبل الإرسال</p>
+                <h2 class="text-2xl font-bold text-blue-900">تأكيد طلبك 📋</h2>
             </div>
-            
             <div id="cart-summary" class="mb-4 max-h-48 overflow-y-auto text-sm space-y-2 border-b-2 border-dashed pb-4 px-2"></div>
-            
             <div class="space-y-4 mt-4">
                 <div>
                     <label class="block text-xs font-bold text-blue-900 mb-1">📍 العنوان (كتابة أو GPS)</label>
@@ -80,15 +70,13 @@
                     </div>
                     <p id="location-status" class="text-[10px] text-blue-500 mt-1 font-bold text-center"></p>
                 </div>
-
                 <div class="text-2xl font-black text-blue-900 flex justify-between items-center bg-yellow-50 p-3 rounded-2xl">
                     <span>الإجمالي:</span>
                     <span><span id="final-price">0</span> د.ع</span>
                 </div>
-                
                 <div class="flex gap-3">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold text-gray-500">رجوع</button>
-                    <button onclick="sendToWhatsApp()" class="flex-[2] py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg flex justify-center items-center gap-2">إرسال للواتساب 📲</button>
+                    <button onclick="sendToWhatsApp()" class="flex-[2] py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg">إرسال للواتساب 📲</button>
                 </div>
             </div>
         </div>
@@ -98,22 +86,20 @@
         const API_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_Ja8kz5VAApLStZ9Y_erhYNqL3eXMafTSR9T8xkI82UzYQMS_efXuIyASXRKZTwYZGp69ExZB-7r3/pub?output=csv';
         let allProducts = [], cart = {}, currentCategory = 'الكل', userLocationLink = "";
 
-        // وظائف الصور
         function openImageViewer(src) { document.getElementById('viewer-img').src = src; document.getElementById('image-viewer').classList.remove('hidden'); }
         function closeImageViewer() { document.getElementById('image-viewer').classList.add('hidden'); }
 
-        // وظيفة تحديد الموقع
         function getLocation() {
             const status = document.getElementById('location-status');
             const btn = document.getElementById('location-btn');
-            status.innerText = "جاري الاتصال بالأقمار الصناعية... ⏳";
+            status.innerText = "جاري تحديد الموقع... ⏳";
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     userLocationLink = `https://www.google.com/maps?q=${pos.coords.latitude},${pos.coords.longitude}`;
-                    status.innerText = "✅ تم تحديد موقعك بدقة";
+                    status.innerText = "✅ تم ربط موقعك بنجاح";
                     btn.style.backgroundColor = "#dcfce7";
                 },
-                () => { status.innerText = "❌ يرجى تفعيل الـ GPS في موبايلك"; }
+                () => { status.innerText = "❌ يرجى تفعيل الـ GPS"; }
             );
         }
 
@@ -135,7 +121,7 @@
                     <button onclick="filterByCategory('${c}')" class="category-btn px-6 py-2 rounded-full font-bold bg-white text-blue-900 border-2 border-blue-900">${c}</button>
                 `).join('');
                 render();
-            } catch (err) { console.error(err); }
+            } catch (err) { console.error("Error loading data:", err); }
         }
 
         function render() {
@@ -143,20 +129,20 @@
             const query = document.getElementById('searchInput').value.toLowerCase();
             const filtered = allProducts.filter(p => (currentCategory === 'الكل' || p.cat === currentCategory) && p.name.toLowerCase().includes(query));
             grid.innerHTML = filtered.map(p => {
-                const imgPath = p.img.startsWith('http') ? p.img : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=1e3a8a&color=fff&size=128`;
+                const imgPath = (p.img && p.img.startsWith('http')) ? p.img : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=1e3a8a&color=fff&size=128`;
                 const qty = cart[p.name] ? cart[p.name].qty : 0;
                 return `
-                <div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card border border-gray-100">
+                <div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card">
                     <div class="flex items-center gap-4 text-right">
-                        <img src="${imgPath}" onclick="openImageViewer('${imgPath}')" class="w-20 h-20 rounded-2xl object-cover bg-slate-100 cursor-pointer shadow-inner">
+                        <img src="${imgPath}" onclick="openImageViewer('${imgPath}')" class="w-20 h-20 rounded-2xl object-cover bg-slate-100 shadow-inner">
                         <div>
-                            <h3 class="font-bold text-gray-800 text-[13px] leading-tight mb-1">${p.name}</h3>
+                            <h3 class="font-bold text-gray-800 text-[13px] leading-tight">${p.name}</h3>
                             <p class="text-blue-700 font-black text-lg">${p.price.toLocaleString()} <span class="text-[10px]">د.ع</span></p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-9 h-9 bg-gray-100 rounded-xl font-bold">-</button><span class="font-bold text-blue-900 w-5 text-center">${qty}</span>` : ''}
-                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-11 h-11 rounded-2xl font-bold text-2xl shadow-md active:scale-90 transition">+</button>
+                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><span class="font-bold text-blue-900">${qty}</span>` : ''}
+                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md">+</button>
                     </div>
                 </div>`;
             }).join('');
@@ -186,8 +172,7 @@
         function openModal() {
             let html = '';
             for (let id in cart) {
-                const sub = (cart[id].qty * cart[id].price).toLocaleString();
-                html += `<div class="flex justify-between border-b border-dashed py-1 text-[13px]"><span>${id} (×${cart[id].qty})</span><span class="font-bold">${sub} د.ع</span></div>`;
+                html += `<div class="flex justify-between border-b border-dashed py-1 text-[13px]"><span>${id} (×${cart[id].qty})</span><span class="font-bold">${(cart[id].qty * cart[id].price).toLocaleString()} د.ع</span></div>`;
             }
             document.getElementById('cart-summary').innerHTML = html;
             document.getElementById('order-modal').classList.remove('hidden');
@@ -206,8 +191,7 @@
             let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a━━━━━━━━━━━━━━━%0a`;
             msg += `*التاريخ:* ${dateStr}%0a*الوقت:* ${h}:${m} ${ampm}%0a━━━━━━━━━━━━━━━%0a`;
             for (let id in cart) {
-                const total = (cart[id].qty * cart[id].price).toLocaleString();
-                msg += `• ${id}%0a   (${cart[id].price.toLocaleString()}) × ${cart[id].qty} = ${total} د.ع%0a`;
+                msg += `• ${id}%0a   (${cart[id].price.toLocaleString()}) × ${cart[id].qty} = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
             }
             msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a`;
             if(userLocationLink) msg += `*📍 موقع الخريطة:* ${userLocationLink}%0a`;
