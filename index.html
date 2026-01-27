@@ -7,15 +7,11 @@
     
     <link rel="apple-touch-icon" href="icon.png.JPG">
     <link rel="icon" type="image/jpeg" href="icon.png.JPG">
-    <link rel="manifest" href="manifest.json?v=1005">
-
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="الكابينة">
+    <link rel="manifest" href="manifest.json?v=2000">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; user-select: none; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
@@ -30,17 +26,17 @@
 
     <div id="loading-screen">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-900"></div>
-        <p class="mt-4 font-bold text-blue-900">جاري تحديث القائمة...</p>
+        <p class="mt-4 font-bold text-blue-900">جاري تحميل المتجر...</p>
     </div>
 
     <header class="navy-blue text-white pt-8 pb-6 px-6 text-center rounded-b-[40px] shadow-xl border-b-4 border-yellow-400">
         <h1 class="text-3xl font-bold text-yellow-400">🏠 ماركت الكابينة</h1>
         <p class="text-white/80 text-sm mt-1 font-bold">تسوق بذكاء وسهولة</p>
         
-        <div class="flex justify-center gap-6 mt-4 text-2xl">
-            <a href="https://www.facebook.com/yourpage" class="text-white hover:text-yellow-400 transition"><i class="fab fa-facebook"></i></a>
-            <a href="https://www.instagram.com/yourpage" class="text-white hover:text-yellow-400 transition"><i class="fab fa-instagram"></i></a>
-            <a href="https://wa.me/9647760982880" class="text-white hover:text-yellow-400 transition"><i class="fab fa-whatsapp"></i></a>
+        <div class="flex justify-center gap-8 mt-5 bg-white/10 py-3 rounded-2xl backdrop-blur-sm">
+            <a href="https://www.facebook.com" target="_blank" class="text-white hover:text-yellow-400 transition text-3xl"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.instagram.com" target="_blank" class="text-white hover:text-yellow-400 transition text-3xl"><i class="fab fa-instagram"></i></a>
+            <a href="https://wa.me/9647760982880" class="text-white hover:text-yellow-400 transition text-3xl"><i class="fab fa-whatsapp"></i></a>
         </div>
     </header>
 
@@ -114,17 +110,14 @@
                 document.getElementById('loading-screen').style.display = 'none';
                 render();
             } catch (e) { 
-                document.getElementById('loading-screen').innerHTML = "⚠️ فشل التحميل، يرجى التأكد من الإنترنت.";
+                document.getElementById('loading-screen').innerHTML = "⚠️ تأكد من الإنترنت وحمل الصفحة مجدداً.";
             }
         }
 
         function render() {
             const q = document.getElementById('searchInput').value.toLowerCase();
             const grid = document.getElementById('items-grid');
-            const filtered = allProducts.filter(p => 
-                (currentCategory === 'الكل' || p.cat === currentCategory) && 
-                (p.name.toLowerCase().includes(q))
-            );
+            const filtered = allProducts.filter(p => (currentCategory === 'الكل' || p.cat === currentCategory) && p.name.toLowerCase().includes(q));
             const displayList = q.length > 0 ? filtered.slice(0, 80) : filtered.slice(0, 40);
 
             grid.innerHTML = displayList.length > 0 ? displayList.map(p => {
@@ -139,10 +132,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        ${qty > 0 ? `
-                            <button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg font-bold text-lg">-</button>
-                            <span class="font-bold text-blue-900 text-lg w-4 text-center">${qty}</span>
-                        ` : ''}
+                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg font-bold text-lg">-</button><span class="font-bold text-blue-900 text-lg w-4 text-center">${qty}</span>` : ''}
                         <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 transition">+</button>
                     </div>
                 </div>`;
@@ -151,12 +141,8 @@
 
         function updateQty(n, c, p) {
             if (!cart[n] && c > 0) cart[n] = { qty: 0, price: p };
-            if (cart[n]) { 
-                cart[n].qty += c; 
-                if (cart[n].qty <= 0) delete cart[n]; 
-            }
-            updateUI();
-            render();
+            if (cart[n]) { cart[n].qty += c; if (cart[n].qty <= 0) delete cart[n]; }
+            updateUI(); render();
         }
 
         function updateUI() {
@@ -186,17 +172,15 @@
 
         function sendToWhatsApp() {
             const addr = document.getElementById('cust-address').value.trim() || "لم يذكر";
-            // الحصول على الوقت والتاريخ العراقي
             const now = new Date();
             const dateStr = now.toLocaleDateString('ar-IQ');
             const timeStr = now.toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' });
 
             let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a`;
-            msg += `📅 التاريخ: ${dateStr}%0a`;
-            msg += `🕒 الوقت: ${timeStr}%0a`;
+            msg += `📅 التاريخ: ${dateStr}%0a🕒 الوقت: ${timeStr}%0a`;
             msg += `━━━━━━━━━━━━━━━%0a`;
             for (let id in cart) msg += `• ${id} (×${cart[id].qty}) = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
-            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a━━━━━━━━━━━━━━━%0aتم الطلب عبر التطبيق ✅`;
+            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a━━━━━━━━━━━━━━━%0aتم الطلب عبر تطبيق الماركت ✅`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
         
