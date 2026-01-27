@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ماركت الكابينة</title>
     
-    <link rel="apple-touch-icon" href="https://i.postimg.cc/8C64fS8v/alkabina-square.png">
-    <link rel="icon" type="image/png" href="https://i.postimg.cc/8C64fS8v/alkabina-square.png">
+    <link rel="apple-touch-icon" href="logo.png.PNG">
+    <link rel="icon" type="image/png" href="logo.png.PNG">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="الكابينة">
-    <link rel="manifest" href="manifest.json?v=12">
+    <link rel="manifest" href="manifest.json?v=3">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; user-select: none; -webkit-tap-highlight-color: transparent; }
         .navy-blue { background-color: #1e3a8a; }
         .category-btn.active { background-color: #facc15; color: #1e3a8a; border-color: #1e3a8a; transform: scale(1.05); }
-        .product-card { border-right: 6px solid #1e3a8a; transition: 0.2s; }
+        .product-card { border-right: 6px solid #1e3a8a; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -32,7 +32,7 @@
     </header>
 
     <div class="sticky top-0 z-40 p-4 bg-slate-100/90 backdrop-blur-md">
-        <input type="text" id="searchInput" onkeyup="render()" placeholder="🔍 ابحث عن مادة..." class="w-full p-4 rounded-2xl border-2 border-blue-900 shadow-sm outline-none text-right">
+        <input type="text" id="searchInput" onkeyup="render()" placeholder="🔍 ابحث عن مادة..." class="w-full p-4 rounded-2xl border-2 border-blue-900 shadow-sm outline-none text-right font-bold">
         <div id="categories-bar" class="flex gap-2 overflow-x-auto py-2 mt-2 no-scrollbar border-b pb-2">
             <button onclick="filterByCategory('الكل')" id="btn-all" class="category-btn active px-6 py-2 rounded-full font-bold border-2 bg-white">الكل</button>
             <div id="categories-list" class="flex gap-2"></div>
@@ -54,19 +54,16 @@
     <div id="order-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[35px] p-6 shadow-2xl text-right">
             <h2 class="text-2xl font-bold text-blue-900 text-center mb-6">تأكيد الطلب 📋</h2>
-            <div id="cart-summary" class="mb-4 max-h-40 overflow-y-auto text-sm space-y-2 border-b border-dashed pb-4 px-1"></div>
-            <div class="space-y-4">
-                <input type="text" id="cust-address" placeholder="📍 العنوان (الحي، الزقاق، الدار)" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right font-bold">
-                <select id="delivery-time" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none font-bold text-blue-900 text-right">
-                    <option value="بأسرع وقت">🚀 موعد التوصيل: بأسرع وقت</option>
-                </select>
+            <div id="cart-summary" class="mb-4 max-h-40 overflow-y-auto text-sm space-y-2 border-b border-dashed pb-4 px-1 font-bold text-gray-700"></div>
+            <div class="space-y-4 font-bold">
+                <input type="text" id="cust-address" placeholder="📍 العنوان (الحي، الزقاق، الدار)" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right">
                 <div class="text-2xl font-black text-blue-900 flex justify-between items-center bg-yellow-50 p-3 rounded-2xl">
                     <span>الإجمالي:</span>
                     <span><span id="final-price">0</span> د.ع</span>
                 </div>
                 <div class="flex gap-3">
                     <button onclick="closeModal()" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold">رجوع</button>
-                    <button onclick="sendToWhatsApp()" class="flex-[2] py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg">إرسال الوصل 📲</button>
+                    <button onclick="sendToWhatsApp()" class="flex-[2] py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg active:scale-95 transition">إرسال 📲</button>
                 </div>
             </div>
         </div>
@@ -76,20 +73,7 @@
         const API_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_Ja8kz5VAApLStZ9Y_erhYNqL3eXMafTSR9T8xkI82UzYQMS_efXuIyASXRKZTwYZGp69ExZB-7r3/pub?output=csv';
         let allProducts = [], cart = {}, currentCategory = 'الكل';
 
-        function generateTimeSlots() {
-            const select = document.getElementById('delivery-time');
-            const hours = [8,9,10,11,12,1,2,3,4,5,6,7,8,9,10,11];
-            hours.forEach((h, i) => {
-                let p = (i < 4) ? "صباحاً" : (i === 4 ? "ظهراً" : "مساءً");
-                const opt = document.createElement('option');
-                opt.value = `${h}:00 ${p}`;
-                opt.text = `🕒 الساعة ${h}:00 ${p}`;
-                select.appendChild(opt);
-            });
-        }
-
         async function init() {
-            generateTimeSlots();
             try {
                 const res = await fetch(API_URL + '&t=' + Date.now());
                 const csv = await res.text();
@@ -122,7 +106,7 @@
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><span class="font-bold text-blue-900">${qty}</span>` : ''}
+                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg font-bold text-lg">-</button><span class="font-bold text-blue-900 text-lg">${qty}</span>` : ''}
                         <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md">+</button>
                     </div>
                 </div>`;
@@ -145,24 +129,19 @@
         }
 
         function filterByCategory(c) { currentCategory = c; document.querySelectorAll('.category-btn, #btn-all').forEach(b => b.classList.toggle('active', b.innerText === c)); render(); }
-        
         function openModal() {
             let h = '';
-            for (let id in cart) h += `<div class="flex justify-between py-1 border-b border-dashed text-right"><span class="font-bold">${(cart[id].qty * cart[id].price).toLocaleString()}</span><span>${id} (×${cart[id].qty})</span></div>`;
+            for (let id in cart) h += `<div class="flex justify-between py-1 border-b border-dashed"><span>${(cart[id].qty * cart[id].price).toLocaleString()}</span><span>${id} (×${cart[id].qty})</span></div>`;
             document.getElementById('cart-summary').innerHTML = h;
             document.getElementById('order-modal').classList.remove('hidden');
         }
-
         function closeModal() { document.getElementById('order-modal').classList.add('hidden'); }
 
         function sendToWhatsApp() {
             const addr = document.getElementById('cust-address').value.trim() || "لم يذكر";
-            const time = document.getElementById('delivery-time').value;
             let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a━━━━━━━━━━━━━━━%0a`;
-            for (let id in cart) {
-                msg += `• ${id}%0a   (${cart[id].price.toLocaleString()}) × ${cart[id].qty} = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
-            }
-            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a*⏰ الموعد:* ${time}%0a━━━━━━━━━━━━━━━%0aتم الطلب عبر التطبيق ✅`;
+            for (let id in cart) msg += `• ${id} (×${cart[id].qty}) = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
+            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a━━━━━━━━━━━━━━━%0aتم الطلب عبر التطبيق ✅`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
         init();
