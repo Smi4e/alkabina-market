@@ -5,96 +5,111 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ماركت الكابينة</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Tajawal', sans-serif; }</style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
+        .navy-blue { background-color: #1e3a8a; }
+        .product-img { width: 70px; height: 70px; object-fit: cover; border-radius: 12px; }
+    </style>
 </head>
-<body class="bg-gray-50 pb-24">
+<body class="pb-24">
 
-    <header class="bg-blue-900 text-white p-6 text-center shadow-lg border-b-4 border-yellow-400">
+    <header class="navy-blue text-white p-6 text-center shadow-md border-b-4 border-yellow-400">
         <h1 class="text-2xl font-bold">🏠 ماركت الكابينة</h1>
-        <p class="text-yellow-400 text-sm">أهلاً بك في متجرنا</p>
+        <p class="text-yellow-400 text-sm mt-1">قائمة المواد والأسعار</p>
     </header>
 
-    <div id="status-msg" class="text-center p-10 font-bold text-blue-900 flex flex-col items-center gap-2">
-        <div id="spinner" class="w-8 h-8 border-4 border-blue-900 border-t-transparent rounded-full animate-spin"></div>
-        <span>جاري جلب قائمة الأسعار...</span>
+    <div class="sticky top-0 z-50 p-4 bg-gray-50/90 backdrop-blur-md">
+        <input type="text" id="mainSearch" onkeyup="doSearch()" 
+               placeholder="🔍 ابحث عن مادة..." 
+               class="w-full p-4 rounded-2xl border-2 border-blue-900 outline-none text-lg shadow-sm">
     </div>
-    
-    <div id="products-container" class="p-4 space-y-4 max-w-md mx-auto"></div>
 
-    <div id="cart-bar" class="fixed bottom-0 left-0 right-0 bg-blue-900 p-4 text-white flex justify-between items-center hidden shadow-2xl z-50">
-        <div class="flex flex-col">
-            <span class="text-xs text-yellow-400">المجموع النهائي</span>
-            <span class="font-bold text-lg"><span id="total">0</span> د.ع</span>
+    <main class="max-w-md mx-auto px-4">
+        <div id="loader" class="text-center py-20 font-bold text-blue-900 animate-pulse">جاري تحديث القائمة...</div>
+        <div id="items-grid" class="space-y-3"></div>
+    </main>
+
+    <div id="cart-float" class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[94%] max-w-sm bg-blue-900 text-white p-4 rounded-2xl shadow-2xl flex justify-between items-center hidden z-50">
+        <div>
+            <p class="text-xs text-yellow-300">السلة:</p>
+            <p class="text-xl font-bold"><span id="total-price">0</span> د.ع</p>
         </div>
-        <button onclick="sendOrder()" class="bg-yellow-400 text-blue-900 px-6 py-3 rounded-xl font-bold active:scale-95 shadow-lg">إرسال الطلب 📲</button>
+        <button onclick="checkout()" class="bg-yellow-400 text-blue-900 px-6 py-3 rounded-xl font-bold shadow-lg">إرسال الطلب 📲</button>
     </div>
 
     <script>
-        // الرابط المباشر
-        const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_Ja8kz5VAApLStZ9Y_erhYNqL3eXMafTSR9T8xkI82UzYQMS_efXuIyASXRKZTwYZGp69ExZB-7r3/pub?output=csv';
+        const API_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_Ja8kz5VAApLStZ9Y_erhYNqL3eXMafTSR9T8xkI82UzYQMS_efXuIyASXRKZTwYZGp69ExZB-7r3/pub?output=csv';
 
-        async function getData() {
+        let allProducts = [];
+
+        async function init() {
             try {
-                const response = await fetch(sheetURL);
-                if (!response.ok) throw new Error();
-                const text = await response.text();
+                const res = await fetch(API_URL + '&t=' + Date.now());
+                const csv = await res.text();
+                const lines = csv.split('\n').slice(1);
                 
-                // تحويل النص إلى أسطر وتنظيفها
-                const rows = text.split('\n').map(row => row.split(',')).filter(cols => cols.length >= 2 && cols[0] !== 'name');
-                
-                let html = '';
-                rows.forEach(cols => {
-                    const name = cols[0].replace(/"/g, '').trim();
-                    const price = cols[1].replace(/"/g, '').trim();
-                    const img = cols[2] ? cols[2].replace(/"/g, '').trim() : '';
+                allProducts = lines.map(line => {
+                    const parts = line.split(/,(?=(?: iconography(?:[^"]*"){2})*[^"]*$)/);
+                    if(parts.length >= 2) {
+                        return { 
+                            name: parts[0].replace(/"/g, '').trim(), 
+                            price: parseInt(parts[1].trim()) || 0,
+                            img: parts[2] ? parts[2].trim() : '' 
+                        };
+                    }
+                }).filter(p => p && p.name);
 
-                    html += `
-                    <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center border-r-8 border-yellow-400 transition-all">
-                        <div class="flex items-center gap-4">
-                            <div class="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-2xl shadow-inner">📦</div>
-                            <div>
-                                <h3 class="font-bold text-gray-800">${name}</h3>
-                                <p class="text-blue-700 font-extrabold text-lg">${parseInt(price).toLocaleString()} <span class="text-xs">د.ع</span></p>
-                            </div>
-                        </div>
-                        <button onclick="add('${name}', ${price})" class="bg-yellow-400 hover:bg-yellow-500 w-12 h-12 rounded-2xl font-bold shadow-md text-2xl text-blue-900 flex items-center justify-center">+</button>
-                    </div>`;
-                });
-
-                if(rows.length === 0) {
-                    document.getElementById('status-msg').innerHTML = "الجدول متاح ولكن لا توجد منتجات حالياً.";
-                } else {
-                    document.getElementById('products-container').innerHTML = html;
-                    document.getElementById('status-msg').style.display = 'none';
-                }
-
-            } catch (e) {
-                document.getElementById('status-msg').innerHTML = `
-                    <div class="bg-red-50 p-4 rounded-xl text-red-600 border border-red-200">
-                        ⚠️ حدث خطأ في الاتصال.<br>
-                        <small>تأكد أنك ضغطت على "نشر على الويب" في جوجل شيت.</small>
-                    </div>`;
+                render(allProducts);
+                document.getElementById('loader').classList.add('hidden');
+            } catch (err) {
+                document.getElementById('loader').innerText = "❌ حدث خطأ في الاتصال";
             }
         }
 
-        let cart = [], total = 0;
-        function add(n, p) {
-            cart.push(n);
-            total += parseInt(p);
-            document.getElementById('total').innerText = total.toLocaleString();
-            document.getElementById('cart-bar').classList.remove('hidden');
+        function render(data) {
+            const grid = document.getElementById('items-grid');
+            grid.innerHTML = data.map(p => {
+                // إذا لم توجد صورة في الإكسل، نضع صورة افتراضية مرتبة
+                const imageSrc = p.img ? (p.img.startsWith('http') ? p.img : `images/${p.img}`) : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=1e3a8a&color=fff&size=128`;
+                
+                return `
+                <div class="bg-white p-3 rounded-xl shadow-sm border-r-4 border-yellow-400 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <img src="${imageSrc}" class="product-img bg-gray-100" onerror="this.src='https://via.placeholder.com/70?text=%D9%85%D8%A7%D8%AF%D8%A9'">
+                        <div>
+                            <h3 class="font-bold text-gray-800 text-sm leading-tight">${p.name}</h3>
+                            <p class="text-blue-700 font-extrabold mt-1">${p.price.toLocaleString()} د.ع</p>
+                        </div>
+                    </div>
+                    <button onclick="addToCart('${p.name}', ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-full font-bold shadow text-xl">+</button>
+                </div>`;
+            }).join('');
         }
 
-        function sendOrder() {
+        function doSearch() {
+            const query = document.getElementById('mainSearch').value.toLowerCase();
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(query));
+            render(filtered);
+        }
+
+        let cart = [], total = 0;
+        function addToCart(n, p) {
+            cart.push(n);
+            total += p;
+            document.getElementById('total-price').innerText = total.toLocaleString();
+            document.getElementById('cart-float').classList.remove('hidden');
+        }
+
+        function checkout() {
             let msg = "*طلب جديد من ماركت الكابينة*%0a------------------%0a";
-            cart.forEach((item, index) => msg += `${index+1}. ${item}%0a`);
+            cart.forEach((m, i) => msg += `${i+1}. ${m}%0a`);
             msg += "------------------%0a";
             msg += `*المجموع: ${total.toLocaleString()} د.ع*`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
 
-        getData();
+        init();
     </script>
 </body>
 </html>
