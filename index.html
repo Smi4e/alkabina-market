@@ -5,13 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ماركت الكابينة</title>
     
-    <link rel="apple-touch-icon" href="https://i.postimg.cc/mD9S9m9p/alkabina-icon.png">
-    <link rel="icon" type="image/png" href="https://i.postimg.cc/mD9S9m9p/alkabina-icon.png">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/8C64fS8v/alkabina-square.png">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/8C64fS8v/alkabina-square.png">
     
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="الكابينة">
-    <link rel="manifest" href="manifest.json?v=10">
+    <link rel="manifest" href="manifest.json?v=12">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; user-select: none; -webkit-tap-highlight-color: transparent; }
         .navy-blue { background-color: #1e3a8a; }
         .category-btn.active { background-color: #facc15; color: #1e3a8a; border-color: #1e3a8a; transform: scale(1.05); }
-        .product-card { border-right: 6px solid #1e3a8a; }
+        .product-card { border-right: 6px solid #1e3a8a; transition: 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
@@ -52,11 +52,11 @@
     </div>
 
     <div id="order-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-[35px] p-6 shadow-2xl text-right font-bold">
+        <div class="bg-white w-full max-w-sm rounded-[35px] p-6 shadow-2xl text-right">
             <h2 class="text-2xl font-bold text-blue-900 text-center mb-6">تأكيد الطلب 📋</h2>
             <div id="cart-summary" class="mb-4 max-h-40 overflow-y-auto text-sm space-y-2 border-b border-dashed pb-4 px-1"></div>
-            <div class="space-y-4 text-right">
-                <input type="text" id="cust-address" placeholder="📍 العنوان (الحي، الزقاق، الدار)" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right">
+            <div class="space-y-4">
+                <input type="text" id="cust-address" placeholder="📍 العنوان (الحي، الزقاق، الدار)" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right font-bold">
                 <select id="delivery-time" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none font-bold text-blue-900 text-right">
                     <option value="بأسرع وقت">🚀 موعد التوصيل: بأسرع وقت</option>
                 </select>
@@ -159,7 +159,9 @@
             const addr = document.getElementById('cust-address').value.trim() || "لم يذكر";
             const time = document.getElementById('delivery-time').value;
             let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a━━━━━━━━━━━━━━━%0a`;
-            for (let id in cart) msg += `• ${id} (×${cart[id].qty}) = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
+            for (let id in cart) {
+                msg += `• ${id}%0a   (${cart[id].price.toLocaleString()}) × ${cart[id].qty} = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
+            }
             msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a*⏰ الموعد:* ${time}%0a━━━━━━━━━━━━━━━%0aتم الطلب عبر التطبيق ✅`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
