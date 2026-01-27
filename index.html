@@ -7,7 +7,7 @@
     
     <link rel="apple-touch-icon" href="icon.png.JPG">
     <link rel="icon" type="image/jpeg" href="icon.png.JPG">
-    <link rel="manifest" href="manifest.json?v=1002">
+    <link rel="manifest" href="manifest.json?v=1005">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -15,6 +15,7 @@
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; user-select: none; -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
@@ -29,12 +30,18 @@
 
     <div id="loading-screen">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-900"></div>
-        <p class="mt-4 font-bold text-blue-900">جاري تحديث قائمة الأسعار...</p>
+        <p class="mt-4 font-bold text-blue-900">جاري تحديث القائمة...</p>
     </div>
 
-    <header class="navy-blue text-white pt-10 pb-6 px-6 text-center rounded-b-[40px] shadow-xl border-b-4 border-yellow-400">
+    <header class="navy-blue text-white pt-8 pb-6 px-6 text-center rounded-b-[40px] shadow-xl border-b-4 border-yellow-400">
         <h1 class="text-3xl font-bold text-yellow-400">🏠 ماركت الكابينة</h1>
         <p class="text-white/80 text-sm mt-1 font-bold">تسوق بذكاء وسهولة</p>
+        
+        <div class="flex justify-center gap-6 mt-4 text-2xl">
+            <a href="https://www.facebook.com/yourpage" class="text-white hover:text-yellow-400 transition"><i class="fab fa-facebook"></i></a>
+            <a href="https://www.instagram.com/yourpage" class="text-white hover:text-yellow-400 transition"><i class="fab fa-instagram"></i></a>
+            <a href="https://wa.me/9647760982880" class="text-white hover:text-yellow-400 transition"><i class="fab fa-whatsapp"></i></a>
+        </div>
     </header>
 
     <div class="sticky top-0 z-40 p-4 bg-slate-100/90 backdrop-blur-md">
@@ -46,9 +53,7 @@
     </div>
 
     <main class="max-w-md mx-auto px-4 mt-4">
-        <div id="items-grid" class="space-y-4 text-center text-gray-400 py-10">
-            جاري معالجة البيانات...
-        </div>
+        <div id="items-grid" class="space-y-4"></div>
     </main>
 
     <div id="cart-float" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-blue-900 text-white p-5 rounded-[30px] shadow-2xl flex justify-between items-center hidden z-50">
@@ -60,8 +65,8 @@
     </div>
 
     <div id="order-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-sm rounded-[35px] p-6 shadow-2xl text-right">
-            <h2 class="text-2xl font-bold text-blue-900 text-center mb-6">تأكيد الطلب 📋</h2>
+        <div class="bg-white w-full max-w-sm rounded-[35px] p-6 shadow-2xl text-right">
+            <h2 class="text-2xl font-bold text-blue-900 text-center mb-4">تأكيد الطلب 📋</h2>
             <div id="cart-summary" class="mb-4 max-h-40 overflow-y-auto text-sm space-y-2 border-b border-dashed pb-4 px-1 font-bold text-gray-700"></div>
             <div class="space-y-4 font-bold">
                 <input type="text" id="cust-address" placeholder="📍 العنوان الكامل ورقم الهاتف" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right">
@@ -116,13 +121,10 @@
         function render() {
             const q = document.getElementById('searchInput').value.toLowerCase();
             const grid = document.getElementById('items-grid');
-            
             const filtered = allProducts.filter(p => 
                 (currentCategory === 'الكل' || p.cat === currentCategory) && 
                 (p.name.toLowerCase().includes(q))
             );
-
-            // تحسين: عرض أول 40 مادة فقط عند التصفح العام لزيادة السرعة
             const displayList = q.length > 0 ? filtered.slice(0, 80) : filtered.slice(0, 40);
 
             grid.innerHTML = displayList.length > 0 ? displayList.map(p => {
@@ -168,9 +170,7 @@
 
         function filterByCategory(c) {
             currentCategory = c;
-            document.querySelectorAll('.category-btn, #btn-all').forEach(b => {
-                b.classList.toggle('active', b.textContent === c);
-            });
+            document.querySelectorAll('.category-btn, #btn-all').forEach(b => b.classList.toggle('active', b.textContent === c));
             window.scrollTo({top: 0, behavior: 'smooth'});
             render();
         }
@@ -186,7 +186,15 @@
 
         function sendToWhatsApp() {
             const addr = document.getElementById('cust-address').value.trim() || "لم يذكر";
-            let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a━━━━━━━━━━━━━━━%0a`;
+            // الحصول على الوقت والتاريخ العراقي
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ar-IQ');
+            const timeStr = now.toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' });
+
+            let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a`;
+            msg += `📅 التاريخ: ${dateStr}%0a`;
+            msg += `🕒 الوقت: ${timeStr}%0a`;
+            msg += `━━━━━━━━━━━━━━━%0a`;
             for (let id in cart) msg += `• ${id} (×${cart[id].qty}) = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
             msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a━━━━━━━━━━━━━━━%0aتم الطلب عبر التطبيق ✅`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
