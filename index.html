@@ -15,6 +15,8 @@
         .product-card { border-right: 6px solid #1e3a8a; transition: transform 0.2s; }
         .social-icon { transition: all 0.3s ease; }
         .social-icon:hover { transform: translateY(-3px); }
+        /* تحسين شكل مدخل الوقت */
+        input[type="time"]::-webkit-calendar-picker-indicator { filter: invert(18%) sepia(51%) saturate(4352%) hue-rotate(214deg) brightness(96%) contrast(101%); cursor: pointer; }
     </style>
 </head>
 <body class="pb-40">
@@ -64,22 +66,29 @@
     </div>
 
     <div id="order-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl animate-scale-up">
-            <h2 class="text-2xl font-bold text-blue-900 mb-4">تأكيد الطلب 📋</h2>
+        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl">
+            <h2 class="text-2xl font-bold text-blue-900 mb-4 font-bold flex items-center gap-2">تأكيد الطلب 📋</h2>
             <div id="cart-summary" class="mb-4 max-h-40 overflow-y-auto border-b pb-4 text-sm text-gray-700 space-y-1"></div>
             <div class="space-y-4">
-                <input type="text" id="cust-address" placeholder="العنوان بالتفصيل 📍" class="w-full p-3 bg-gray-50 rounded-xl border-2 border-gray-200 outline-none focus:border-blue-900">
-                <select id="cust-time" class="w-full p-3 bg-gray-50 rounded-xl outline-none border-2 border-gray-200">
-                    <option>بأسرع وقت</option>
-                    <option>المساء</option>
-                </select>
-                <div class="text-2xl font-black text-blue-900 flex justify-between py-2">
+                <div>
+                    <label class="block text-xs font-bold text-blue-900 mb-1">📍 العنوان بالتفصيل</label>
+                    <input type="text" id="cust-address" placeholder="الحي، الزقاق، رقم الدار..." class="w-full p-3 bg-gray-50 rounded-xl border-2 border-gray-200 outline-none focus:border-blue-900">
+                </div>
+                
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <label class="block text-xs font-bold text-blue-900 mb-1">⏰ حدد الساعة</label>
+                        <input type="time" id="cust-time" class="w-full p-3 bg-gray-50 rounded-xl outline-none border-2 border-gray-200 focus:border-blue-900 font-bold">
+                    </div>
+                </div>
+
+                <div class="text-2xl font-black text-blue-900 flex justify-between py-2 border-t pt-4">
                     <span>الإجمالي:</span>
                     <span><span id="final-price">0</span> د.ع</span>
                 </div>
-                <div class="flex gap-3">
-                    <button onclick="closeModal()" class="flex-1 py-3 bg-gray-100 rounded-2xl font-bold">رجوع</button>
-                    <button onclick="sendToWhatsApp()" class="flex-[2] py-3 bg-green-600 text-white rounded-2xl font-bold">إرسال 📲</button>
+                <div class="flex gap-3 mt-4">
+                    <button onclick="closeModal()" class="flex-1 py-3 bg-gray-100 rounded-2xl font-bold text-gray-600">رجوع</button>
+                    <button onclick="sendToWhatsApp()" class="flex-[2] py-3 bg-green-600 text-white rounded-2xl font-bold flex items-center justify-center gap-2">إرسال للواتساب 📲</button>
                 </div>
             </div>
         </div>
@@ -97,10 +106,10 @@
                 const cats = new Set();
                 
                 allProducts = lines.map(line => {
-                    const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    const parts = line.split(/,(?=(?: iconography(?:[^"]*"){2})*[^"]*$)/);
                     if(parts.length >= 2) {
                         let catName = (parts[3] && parts[3].trim()) ? parts[3].replace(/"/g, '').trim() : '';
-                        if (catName && catName !== "عام") cats.add(catName);
+                        if (catName && catName !== "عام" && catName !== "") cats.add(catName);
                         else catName = "أخرى";
 
                         return { 
@@ -133,14 +142,14 @@
                 return `
                 <div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card">
                     <div class="flex items-center gap-4">
-                        <img src="${img}" class="w-16 h-16 rounded-2xl object-cover bg-slate-50 border">
+                        <img src="${img}" class="w-16 h-16 rounded-2xl object-cover bg-slate-50 border shadow-inner">
                         <div>
                             <h3 class="font-bold text-gray-800 text-sm leading-tight">${p.name}</h3>
                             <p class="text-blue-700 font-black mt-1">${p.price.toLocaleString()} د.ع</p>
                         </div>
                     </div>
                     <div class="flex items-center gap-2">
-                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg">-</button><span class="font-bold">${qty}</span>` : ''}
+                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg shadow-sm">-</button><span class="font-bold px-1">${qty}</span>` : ''}
                         <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md">+</button>
                     </div>
                 </div>`;
@@ -171,18 +180,35 @@
 
         function openModal() {
             let html = '';
-            for (let id in cart) html += `<div class="flex justify-between"><span>${id} ×${cart[id].qty}</span><span>${(cart[id].qty * cart[id].price).toLocaleString()}</span></div>`;
+            for (let id in cart) html += `<div class="flex justify-between border-b border-dashed py-1"><span>${id} ×${cart[id].qty}</span><span>${(cart[id].qty * cart[id].price).toLocaleString()}</span></div>`;
             document.getElementById('cart-summary').innerHTML = html;
+            
+            // تعيين الوقت الحالي كخيار افتراضي
+            const now = new Date();
+            const currentTime = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('cust-time').value = currentTime;
+            
             document.getElementById('order-modal').classList.remove('hidden');
         }
 
         function closeModal() { document.getElementById('order-modal').classList.add('hidden'); }
 
         function sendToWhatsApp() {
-            const addr = document.getElementById('cust-address').value || "لم يذكر";
+            const addr = document.getElementById('cust-address').value.trim() || "لم يذكر";
+            const rawTime = document.getElementById('cust-time').value;
+            
+            // تحويل الوقت إلى تنسيق 12 ساعة AM/PM
+            let timeMsg = "بأسرع وقت";
+            if(rawTime) {
+                let [h, m] = rawTime.split(':');
+                let ampm = h >= 12 ? 'مساءً' : 'صباحاً';
+                h = h % 12 || 12;
+                timeMsg = `${h}:${m} ${ampm}`;
+            }
+
             let msg = `*طلب جديد - ماركت الكابينة*%0a━━━━━━━━━━━━━━━%0a`;
             for (let id in cart) msg += `• ${id} (العدد: ${cart[id].qty})%0a`;
-            msg += `━━━━━━━━━━━━━━━%0a*الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*العنوان:* ${addr}`;
+            msg += `━━━━━━━━━━━━━━━%0a*الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a*⏰ وقت التوصيل:* ${timeMsg}`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
 
