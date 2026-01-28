@@ -7,10 +7,10 @@
     
     <link rel="apple-touch-icon" href="icon.png.JPG">
     <link rel="icon" type="image/jpeg" href="icon.png.JPG">
-    <link rel="manifest" href="manifest.json?v=7000">
+    <link rel="manifest" href="manifest.json?v=11000">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -20,6 +20,10 @@
         .product-card { border-right: 6px solid #1e3a8a; transition: transform 0.1s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         #loading-screen { position: fixed; inset: 0; background: white; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        
+        /* انيميشن للبوت */
+        @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .animate-bounce-slow { animation: bounce-slow 2s infinite; }
     </style>
 </head>
 <body class="pb-40">
@@ -30,19 +34,13 @@
     </div>
 
     <header class="navy-blue text-white pt-8 pb-10 px-6 text-center rounded-b-[40px] shadow-xl border-b-4 border-yellow-400">
-        <h1 class="text-3xl font-bold text-yellow-400">🏠 ماركت الكابينة</h1>
+        <h1 class="text-3xl font-black text-yellow-400">🏠 ماركت الكابينة</h1>
         <p class="text-white/80 text-sm mt-1 font-bold">تسوق بذكاء وسهولة</p>
         
         <div class="max-w-[280px] mx-auto mt-6 bg-white/10 py-4 rounded-[25px] flex justify-center items-center gap-10 border border-white/5 backdrop-blur-sm">
-            <a href="https://wa.me/9647760982880" target="_blank" class="text-white text-3xl opacity-90 hover:opacity-100 transition-all active:scale-90">
-                <i class="fab fa-whatsapp"></i>
-            </a>
-            <a href="https://www.instagram.com/alkabeena.krb?igsh=MXZhYmNiNDBiZ2ZpNA%3D%3D&utm_source=qr" target="_blank" class="text-white text-3xl opacity-90 hover:opacity-100 transition-all active:scale-90">
-                <i class="fab fa-instagram"></i>
-            </a>
-            <a href="https://www.facebook.com/share/1C6dsU2642/?mibextid=wwXIfr" target="_blank" class="text-white text-3xl opacity-90 hover:opacity-100 transition-all active:scale-90">
-                <i class="fab fa-facebook"></i>
-            </a>
+            <a href="https://wa.me/9647760982880" target="_blank" class="text-white text-3xl opacity-90"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://www.instagram.com/alkabeena.krb?igsh=MXZhYmNiNDBiZ2ZpNA%3D%3D&utm_source=qr" target="_blank" class="text-white text-3xl opacity-90"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/share/1C6dsU2642/?mibextid=wwXIfr" target="_blank" class="text-white text-3xl opacity-90"><i class="fab fa-facebook"></i></a>
         </div>
     </header>
 
@@ -58,28 +56,57 @@
         <div id="items-grid" class="space-y-4"></div>
     </main>
 
+    <div id="image-viewer" class="fixed inset-0 bg-black/90 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-md" onclick="closeImageViewer()">
+        <div class="relative max-w-full text-center">
+            <img id="full-image" src="" class="rounded-3xl shadow-2xl max-w-full max-h-[75vh] object-contain border-4 border-white/20 mx-auto">
+            <p id="image-caption" class="text-white mt-4 font-bold text-xl"></p>
+        </div>
+    </div>
+
+    <div id="chat-bubble" class="fixed bottom-28 left-6 z-[60] cursor-pointer animate-bounce-slow" onclick="toggleChat()">
+        <div class="bg-blue-900 text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center border-2 border-yellow-400">
+            <i class="fas fa-robot text-2xl"></i>
+        </div>
+    </div>
+
+    <div id="chat-window" class="fixed bottom-28 left-6 right-6 z-[70] bg-white rounded-[30px] shadow-2xl border-2 border-blue-900 overflow-hidden hidden">
+        <div class="bg-blue-900 p-4 text-white flex justify-between items-center">
+            <div class="flex items-center gap-2 font-bold">مساعد الكابينة الذكي 🤖</div>
+            <button onclick="toggleChat()" class="text-white text-xl">×</button>
+        </div>
+        <div class="p-4 space-y-4">
+            <div class="bg-blue-50 p-3 rounded-2xl rounded-tr-none text-right text-sm font-bold text-blue-900 border-r-4 border-blue-900">
+                يا هلا بيك بماركت الكابينة! محتاج مساعدة؟
+            </div>
+            <div id="bot-options" class="flex flex-col gap-2">
+                <button onclick="botReply('📍 مكاننا بكربلاء - حي رمضان.')" class="p-3 bg-gray-100 rounded-xl text-right text-xs font-bold hover:bg-yellow-100">📍 وين صاير مكانكم؟</button>
+                <button onclick="botReply('🚚 التوصيل بحي رمضان مجاني.')" class="p-3 bg-gray-100 rounded-xl text-right text-xs font-bold hover:bg-yellow-100">🚚 شكد سعر التوصيل؟</button>
+                <button onclick="window.open('https://wa.me/9647760982880')" class="p-3 bg-green-50 rounded-xl text-right text-xs font-bold text-green-700">📞 أريد أحجي ويه الإدارة</button>
+            </div>
+            <div id="bot-answer" class="hidden bg-yellow-50 p-3 rounded-2xl text-right text-sm font-bold text-gray-800 border-r-4 border-yellow-400"></div>
+        </div>
+    </div>
+
     <div id="cart-float" class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md bg-blue-900 text-white p-5 rounded-[30px] shadow-2xl flex justify-between items-center hidden z-50">
         <div class="flex items-center gap-4">
             <div class="bg-yellow-400 text-blue-900 w-12 h-12 rounded-full flex items-center justify-center font-black text-xl" id="cart-count">0</div>
             <p class="text-xl font-bold"><span id="total-price">0</span> د.ع</p>
         </div>
-        <button onclick="openModal()" class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-2xl font-black active:scale-95 transition">اطلب الآن</button>
+        <button onclick="openModal()" class="bg-yellow-400 text-blue-900 px-8 py-3 rounded-2xl font-black">اطلب الآن</button>
     </div>
 
     <div id="order-modal" class="fixed inset-0 bg-black/70 z-50 hidden flex items-center justify-center p-4 backdrop-blur-sm">
         <div class="bg-white w-full max-w-sm rounded-[35px] p-6 shadow-2xl text-right">
-            <h2 class="text-2xl font-bold text-blue-900 text-center mb-4">تأكيد الطلب 📋</h2>
-            <div id="cart-summary" class="mb-4 max-h-40 overflow-y-auto text-sm space-y-2 border-b border-dashed pb-4 px-1 font-bold text-gray-700"></div>
-            <div class="space-y-4 font-bold">
-                <input type="text" id="cust-address" placeholder="📍 العنوان الكامل ورقم الهاتف" class="w-full p-4 bg-gray-50 rounded-2xl border-2 border-gray-200 outline-none focus:border-blue-900 text-right">
-                <div class="text-2xl font-black text-blue-900 flex justify-between items-center bg-yellow-50 p-3 rounded-2xl">
-                    <span>الإجمالي:</span>
-                    <span><span id="final-price">0</span> د.ع</span>
-                </div>
-                <div class="flex gap-3">
-                    <button onclick="closeModal()" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold">رجوع</button>
-                    <button onclick="sendToWhatsApp()" class="flex-[2] py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg active:scale-95 transition">إرسال 📲</button>
-                </div>
+            <h2 class="text-2xl font-bold text-blue-900 text-center mb-4 border-b pb-2">تأكيد الطلب 📋</h2>
+            <div id="cart-summary" class="mb-4 max-h-40 overflow-y-auto text-sm space-y-2 border-b border-dashed pb-4 px-1 font-bold"></div>
+            <input type="text" id="cust-address" placeholder="📍 العنوان الكامل ورقم الهاتف" class="w-full p-4 bg-gray-50 rounded-2xl border-2 mb-4 text-right">
+            <div class="text-2xl font-black text-blue-900 flex justify-between items-center bg-yellow-50 p-3 rounded-2xl mb-4">
+                <span>الإجمالي:</span>
+                <span><span id="final-price">0</span> د.ع</span>
+            </div>
+            <div class="flex gap-3">
+                <button onclick="closeModal()" class="flex-1 py-4 bg-gray-100 rounded-2xl font-bold">رجوع</button>
+                <button onclick="sendToWhatsApp()" class="flex-[2] py-4 bg-green-600 text-white rounded-2xl font-bold shadow-lg">إرسال 📲</button>
             </div>
         </div>
     </div>
@@ -87,6 +114,16 @@
     <script>
         const API_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_Ja8kz5VAApLStZ9Y_erhYNqL3eXMafTSR9T8xkI82UzYQMS_efXuIyASXRKZTwYZGp69ExZB-7r3/pub?output=csv';
         let allProducts = [], cart = {}, currentCategory = 'الكل';
+
+        // وظائف البوت
+        function toggleChat() {
+            document.getElementById('chat-window').classList.toggle('hidden');
+        }
+        function botReply(text) {
+            const ans = document.getElementById('bot-answer');
+            ans.innerText = text;
+            ans.classList.remove('hidden');
+        }
 
         async function init() {
             try {
@@ -105,28 +142,37 @@
                 document.getElementById('categories-list').innerHTML = Array.from(cats).map(c => `<button onclick="filterByCategory('${c}')" class="category-btn px-6 py-2 rounded-full font-bold bg-white text-blue-900 border-2 border-blue-900 whitespace-nowrap">${c}</button>`).join('');
                 document.getElementById('loading-screen').style.display = 'none';
                 render();
-            } catch (e) { document.getElementById('loading-screen').innerHTML = "⚠️ فشل في الاتصال بالبيانات."; }
+            } catch (e) { document.getElementById('loading-screen').innerHTML = "⚠️ عذراً، تأكد من الإنترنت."; }
         }
 
         function render() {
             const q = document.getElementById('searchInput').value.toLowerCase();
             const grid = document.getElementById('items-grid');
             const filtered = allProducts.filter(p => (currentCategory === 'الكل' || p.cat === currentCategory) && p.name.toLowerCase().includes(q));
-            const displayList = q.length > 0 ? filtered.slice(0, 100) : filtered.slice(0, 50);
-            grid.innerHTML = displayList.length > 0 ? displayList.map(p => {
+            grid.innerHTML = filtered.map(p => {
                 const qty = cart[p.name] ? cart[p.name].qty : 0;
+                const imageSrc = p.img && p.img.startsWith('http') ? p.img : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=random&color=fff`;
                 return `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card border border-gray-100">
                     <div class="flex items-center gap-4 text-right">
-                        <img src="${p.img || 'https://ui-avatars.com/api/?name='+p.name+'&background=random'}" class="w-16 h-16 rounded-2xl object-cover" loading="lazy">
-                        <div><h3 class="font-bold text-gray-800 text-sm leading-tight">${p.name}</h3><p class="text-blue-700 font-black mt-1">${p.price.toLocaleString()} د.ع</p></div>
+                        <div class="w-16 h-16 rounded-2xl bg-gray-100 overflow-hidden cursor-pointer" onclick="openImageViewer('${imageSrc}', '${p.name}')">
+                            <img src="${imageSrc}" class="w-full h-full object-cover">
+                        </div>
+                        <div><h3 class="font-bold text-gray-800 text-sm">${p.name}</h3><p class="text-blue-700 font-black mt-1">${p.price.toLocaleString()} د.ع</p></div>
                     </div>
                     <div class="flex items-center gap-2">
-                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg font-bold text-lg">-</button><span class="font-bold text-blue-900 text-lg w-4 text-center">${qty}</span>` : ''}
-                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 transition">+</button>
+                        ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg font-bold">-</button><span class="font-bold text-blue-900 text-lg w-4 text-center">${qty}</span>` : ''}
+                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 transition flex items-center justify-center">+</button>
                     </div>
                 </div>`;
-            }).join('') : `<p class="text-center text-gray-400 py-10 font-bold">عذراً، المادة غير موجودة</p>`;
+            }).join('');
         }
+
+        function openImageViewer(src, name) {
+            document.getElementById('full-image').src = src;
+            document.getElementById('image-caption').innerText = name;
+            document.getElementById('image-viewer').classList.remove('hidden');
+        }
+        function closeImageViewer() { document.getElementById('image-viewer').classList.add('hidden'); }
 
         function updateQty(n, c, p) {
             if (!cart[n] && c > 0) cart[n] = { qty: 0, price: p };
@@ -146,7 +192,6 @@
         function filterByCategory(c) {
             currentCategory = c;
             document.querySelectorAll('.category-btn, #btn-all').forEach(b => b.classList.toggle('active', b.textContent === c));
-            window.scrollTo({top: 0, behavior: 'smooth'});
             render();
         }
 
@@ -156,17 +201,13 @@
             document.getElementById('cart-summary').innerHTML = h;
             document.getElementById('order-modal').classList.remove('hidden');
         }
-
         function closeModal() { document.getElementById('order-modal').classList.add('hidden'); }
 
         function sendToWhatsApp() {
             const addr = document.getElementById('cust-address').value.trim() || "لم يذكر";
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('ar-IQ');
-            const timeStr = now.toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' });
-            let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a📅 التاريخ: ${dateStr}%0a🕒 الوقت: ${timeStr}%0a━━━━━━━━━━━━━━━%0a`;
+            let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a━━━━━━━━━━━━━━━%0a`;
             for (let id in cart) msg += `• ${id} (×${cart[id].qty}) = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
-            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a━━━━━━━━━━━━━━━%0aتم الطلب عبر تطبيق الماركت ✅`;
+            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a━━━━━━━━━━━━━━━%0aتم الطلب من التطبيق ✅`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
         init();
