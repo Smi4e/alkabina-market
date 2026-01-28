@@ -7,7 +7,7 @@
     
     <link rel="apple-touch-icon" href="icon.png.JPG">
     <link rel="icon" type="image/jpeg" href="icon.png.JPG">
-    <link rel="manifest" href="manifest.json?v=14000">
+    <link rel="manifest" href="manifest.json?v=13000">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
@@ -37,9 +37,9 @@
         <p class="text-white/80 text-sm mt-1 font-bold">تسوق بذكاء وسهولة</p>
         
         <div class="max-w-[280px] mx-auto mt-6 bg-white/10 py-4 rounded-[25px] flex justify-center items-center gap-10 border border-white/5 backdrop-blur-sm">
-            <a href="https://wa.me/9647760982880" target="_blank" class="text-white text-3xl"><i class="fab fa-whatsapp"></i></a>
-            <a href="https://www.instagram.com/alkabeena.krb" target="_blank" class="text-white text-3xl"><i class="fab fa-instagram"></i></a>
-            <a href="https://www.facebook.com/share/1C6dsU2642/" target="_blank" class="text-white text-3xl"><i class="fab fa-facebook"></i></a>
+            <a href="https://wa.me/9647760982880" target="_blank" class="text-white text-3xl opacity-90"><i class="fab fa-whatsapp"></i></a>
+            <a href="https://www.instagram.com/alkabeena.krb?igsh=MXZhYmNiNDBiZ2ZpNA%3D%3D&utm_source=qr" target="_blank" class="text-white text-3xl opacity-90"><i class="fab fa-instagram"></i></a>
+            <a href="https://www.facebook.com/share/1C6dsU2642/?mibextid=wwXIfr" target="_blank" class="text-white text-3xl opacity-90"><i class="fab fa-facebook"></i></a>
         </div>
     </header>
 
@@ -70,18 +70,18 @@
             </div>
             <button onclick="toggleChat()" class="text-white text-2xl font-bold">×</button>
         </div>
-        <div class="p-4 space-y-4 text-right">
-            <div class="bg-blue-50 p-3 rounded-2xl rounded-tr-none text-sm font-bold text-blue-900 border-r-4 border-blue-900 shadow-sm">
+        <div class="p-4 space-y-4">
+            <div class="bg-blue-50 p-3 rounded-2xl rounded-tr-none text-right text-sm font-bold text-blue-900 border-r-4 border-blue-900 shadow-sm">
                 يا هلا بيك بماركت الكابينة! شلون أكدر أساعدك اليوم؟ 😊
             </div>
             <div id="bot-options" class="flex flex-col gap-2">
-                <button onclick="botReply('📍 عنوانا بكربلاء - حي الصمود، قرب محطة تعبئة وقود الغاضرية ، وتكدر تندلنا بدقة من الزر الجوة 👇', true)" class="p-3 bg-gray-50 rounded-xl font-bold hover:bg-yellow-50 border border-gray-100 transition">📍 وين صاير مكانكم؟</button>
-                <button onclick="botReply('🚚 التوصيل حسب البعد عن الماركت.', false)" class="p-3 bg-gray-50 rounded-xl font-bold hover:bg-yellow-50 border border-gray-100 transition">🚚 شكد سعر التوصيل؟</button>
+                <button onclick="botReply('📍 مكاننا بكربلاء - حي رمضان، وتكدر تندلنا بدقة من الزر الجوة 👇', true)" class="p-3 bg-gray-50 rounded-xl text-right text-xs font-bold hover:bg-yellow-50 border border-gray-100 transition">📍 وين صاير مكانكم؟</button>
+                <button onclick="botReply('🚚 التوصيل بحي رمضان مجاني، وباقي المناطق حسب البعد عن الماركت.', false)" class="p-3 bg-gray-50 rounded-xl text-right text-xs font-bold hover:bg-yellow-50 border border-gray-100 transition">🚚 شكد سعر التوصيل؟</button>
                 <button onclick="window.open('https://wa.me/9647760982880')" class="p-4 bg-green-600 text-white rounded-xl text-center text-sm font-black shadow-lg">📞 تواصل مباشر واتساب</button>
             </div>
             <div id="bot-answer-container" class="hidden space-y-3">
-                <div id="bot-answer" class="bg-yellow-50 p-3 rounded-2xl text-sm font-bold text-gray-800 border-r-4 border-yellow-400 shadow-inner"></div>
-                <a id="map-button" href="http://googleusercontent.com/maps.google.com/3" target="_blank" class="hidden flex items-center justify-center gap-3 w-full p-4 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-xl animate-bounce">
+                <div id="bot-answer" class="bg-yellow-50 p-3 rounded-2xl text-right text-sm font-bold text-gray-800 border-r-4 border-yellow-400 shadow-inner"></div>
+                <a id="map-button" href="https://maps.google.com" target="_blank" class="hidden flex items-center justify-center gap-3 w-full p-4 bg-blue-600 text-white rounded-xl font-bold text-sm shadow-xl">
                     <i class="fas fa-map-marker-alt"></i> فتح الموقع على الخريطة 🗺️
                 </a>
             </div>
@@ -120,11 +120,18 @@
         const API_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vR_Ja8kz5VAApLStZ9Y_erhYNqL3eXMafTSR9T8xkI82UzYQMS_efXuIyASXRKZTwYZGp69ExZB-7r3/pub?output=csv';
         let allProducts = [], cart = {}, currentCategory = 'الكل';
 
-        function toggleChat() { document.getElementById('chat-window').classList.toggle('hidden'); }
+        function toggleChat() {
+            const win = document.getElementById('chat-window');
+            win.classList.toggle('hidden');
+        }
+
         function botReply(text, showMap) {
-            document.getElementById('bot-answer').innerText = text;
-            document.getElementById('bot-answer-container').classList.remove('hidden');
-            document.getElementById('map-button').classList.toggle('hidden', !showMap);
+            const container = document.getElementById('bot-answer-container');
+            const ans = document.getElementById('bot-answer');
+            const mapBtn = document.getElementById('map-button');
+            ans.innerText = text;
+            container.classList.remove('hidden');
+            mapBtn.classList.toggle('hidden', !showMap);
         }
 
         async function init() {
@@ -144,7 +151,7 @@
                 document.getElementById('categories-list').innerHTML = Array.from(cats).map(c => `<button onclick="filterByCategory('${c}')" class="category-btn px-6 py-2 rounded-full font-bold bg-white text-blue-900 border-2 border-blue-900 whitespace-nowrap">${c}</button>`).join('');
                 document.getElementById('loading-screen').style.display = 'none';
                 render();
-            } catch (e) { document.getElementById('loading-screen').innerHTML = "⚠️ فشل في التحميل، يرجى التحقق من الإنترنت."; }
+            } catch (e) { document.getElementById('loading-screen').innerHTML = "⚠️ فشل في تحميل البيانات."; }
         }
 
         function render() {
@@ -156,14 +163,14 @@
                 const imageSrc = p.img && p.img.startsWith('http') ? p.img : `https://ui-avatars.com/api/?name=${encodeURIComponent(p.name)}&background=random&color=fff`;
                 return `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card border border-gray-100">
                     <div class="flex items-center gap-4 text-right">
-                        <div class="w-16 h-16 rounded-2xl bg-gray-100 overflow-hidden cursor-pointer" onclick="openImageViewer('${imageSrc}', '${p.name}')">
+                        <div class="w-16 h-16 rounded-2xl bg-gray-100 overflow-hidden cursor-pointer shadow-inner" onclick="openImageViewer('${imageSrc}', '${p.name}')">
                             <img src="${imageSrc}" class="w-full h-full object-cover">
                         </div>
-                        <div><h3 class="font-bold text-gray-800 text-sm">${p.name}</h3><p class="text-blue-700 font-black mt-1 text-sm">${p.price.toLocaleString()} د.ع</p></div>
+                        <div><h3 class="font-bold text-gray-800 text-sm">${p.name}</h3><p class="text-blue-700 font-black mt-1">${p.price.toLocaleString()} د.ع</p></div>
                     </div>
                     <div class="flex items-center gap-2">
                         ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg font-bold text-red-500">-</button><span class="font-bold text-blue-900 text-lg w-4 text-center">${qty}</span>` : ''}
-                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 flex items-center justify-center">+</button>
+                        <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 transition flex items-center justify-center">+</button>
                     </div>
                 </div>`;
             }).join('');
@@ -177,6 +184,7 @@
         function openModal() { let h = ''; for (let id in cart) h += `<div class="flex justify-between py-2 border-b border-dashed"><span>${(cart[id].qty * cart[id].price).toLocaleString()}</span><span>${id} (×${cart[id].qty})</span></div>`; document.getElementById('cart-summary').innerHTML = h; document.getElementById('order-modal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('order-modal').classList.add('hidden'); }
 
+        // دالة إرسال الواتساب مع التاريخ والوقت
         function sendToWhatsApp() {
             const addr = document.getElementById('cust-address').value.trim() || "لم يذكر (سأرسل اللوكيشن)";
             const now = new Date();
@@ -187,20 +195,19 @@
             msg += `📅 التاريخ: ${dateStr}%0a`;
             msg += `🕒 الوقت: ${timeStr}%0a`;
             msg += `━━━━━━━━━━━━━━━%0a`;
-            for (let id in cart) { msg += `• ${id} (×${cart[id].qty}) = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`; }
-            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a━━━━━━━━━━━━━━━%0aتم الطلب من التطبيق ✅`;
-            
-            closeModal();
-            document.getElementById('loading-screen').style.display = 'none'; // ضمان عدم ظهور شاشة التحميل عند العودة
-            window.open(`https://wa.me/9647760982880?text=${msg}`, '_blank');
+
+            for (let id in cart) {
+                msg += `• ${id} (×${cart[id].qty}) = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
+            }
+
+            msg += `━━━━━━━━━━━━━━━%0a`;
+            msg += `*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a`;
+            msg += `*📍 العنوان:* ${addr}%0a`;
+            msg += `━━━━━━━━━━━━━━━%0a`;
+            msg += `تم الطلب من التطبيق ✅`;
+
+            window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
-
-        // حل مشكلة الشاشة البيضاء عند العودة من الواتساب
-        window.addEventListener('pageshow', function(event) {
-            const loadingScreen = document.getElementById('loading-screen');
-            if (loadingScreen) loadingScreen.style.display = 'none';
-        });
-
         init();
     </script>
 </body>
