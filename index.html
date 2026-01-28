@@ -7,7 +7,7 @@
     
     <link rel="apple-touch-icon" href="icon.png.JPG">
     <link rel="icon" type="image/jpeg" href="icon.png.JPG">
-    <link rel="manifest" href="manifest.json?v=2000">
+    <link rel="manifest" href="manifest.json?v=6000">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
@@ -20,6 +20,8 @@
         .product-card { border-right: 6px solid #1e3a8a; transition: transform 0.1s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         #loading-screen { position: fixed; inset: 0; background: white; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+        .social-link { transition: all 0.3s ease; }
+        .social-link:active { transform: scale(0.9); }
     </style>
 </head>
 <body class="pb-40">
@@ -33,10 +35,19 @@
         <h1 class="text-3xl font-bold text-yellow-400">🏠 ماركت الكابينة</h1>
         <p class="text-white/80 text-sm mt-1 font-bold">تسوق بذكاء وسهولة</p>
         
-        <div class="flex justify-center gap-8 mt-5 bg-white/10 py-3 rounded-2xl backdrop-blur-sm">
-            <a href="https://www.facebook.com" target="_blank" class="text-white hover:text-yellow-400 transition text-3xl"><i class="fab fa-facebook"></i></a>
-            <a href="https://www.instagram.com" target="_blank" class="text-white hover:text-yellow-400 transition text-3xl"><i class="fab fa-instagram"></i></a>
-            <a href="https://wa.me/9647760982880" class="text-white hover:text-yellow-400 transition text-3xl"><i class="fab fa-whatsapp"></i></a>
+        <div class="flex justify-center gap-8 mt-5 bg-white/20 py-4 rounded-2xl border border-white/30 backdrop-blur-md">
+            <a href="https://wa.me/9647760982880" target="_blank" class="social-link text-white text-3xl text-center">
+                <i class="fab fa-whatsapp text-green-400"></i>
+                <span class="text-[10px] block font-bold mt-1">واتساب</span>
+            </a>
+            <a href="https://www.facebook.com/share/1C6dsU2642/?mibextid=wwXIfr" target="_blank" class="social-link text-white text-3xl text-center">
+                <i class="fab fa-facebook text-blue-400"></i>
+                <span class="text-[10px] block font-bold mt-1">فيسبوك</span>
+            </a>
+            <a href="https://www.instagram.com/alkabeena.krb?igsh=MXZhYmNiNDBiZ2ZpNA%3D%3D&utm_source=qr" target="_blank" class="social-link text-white text-3xl text-center">
+                <i class="fab fa-instagram text-pink-400"></i>
+                <span class="text-[10px] block font-bold mt-1">انستغرام</span>
+            </a>
         </div>
     </header>
 
@@ -88,55 +99,38 @@
                 const csv = await res.text();
                 const lines = csv.split('\n').slice(1);
                 const cats = new Set();
-                
                 allProducts = lines.map(line => {
                     const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                     if(parts.length >= 2 && parts[0].trim() !== "") {
                         let c = parts[3] ? parts[3].trim().replace(/"/g, '') : 'عام';
                         if (c && c !== "" && c !== "عام") cats.add(c);
-                        return { 
-                            name: parts[0].replace(/"/g, '').trim(), 
-                            price: parseInt(parts[1].replace(/[^\d]/g, '')) || 0, 
-                            img: parts[2] ? parts[2].trim() : '', 
-                            cat: c 
-                        };
+                        return { name: parts[0].replace(/"/g, '').trim(), price: parseInt(parts[1].replace(/[^\d]/g, '')) || 0, img: parts[2] ? parts[2].trim() : '', cat: c };
                     }
                 }).filter(p => p && p.name);
-
-                document.getElementById('categories-list').innerHTML = Array.from(cats).map(c => 
-                    `<button onclick="filterByCategory('${c}')" class="category-btn px-6 py-2 rounded-full font-bold bg-white text-blue-900 border-2 border-blue-900 whitespace-nowrap">${c}</button>`
-                ).join('');
-                
+                document.getElementById('categories-list').innerHTML = Array.from(cats).map(c => `<button onclick="filterByCategory('${c}')" class="category-btn px-6 py-2 rounded-full font-bold bg-white text-blue-900 border-2 border-blue-900 whitespace-nowrap">${c}</button>`).join('');
                 document.getElementById('loading-screen').style.display = 'none';
                 render();
-            } catch (e) { 
-                document.getElementById('loading-screen').innerHTML = "⚠️ تأكد من الإنترنت وحمل الصفحة مجدداً.";
-            }
+            } catch (e) { document.getElementById('loading-screen').innerHTML = "⚠️ حدث خطأ، يرجى إعادة المحاولة."; }
         }
 
         function render() {
             const q = document.getElementById('searchInput').value.toLowerCase();
             const grid = document.getElementById('items-grid');
             const filtered = allProducts.filter(p => (currentCategory === 'الكل' || p.cat === currentCategory) && p.name.toLowerCase().includes(q));
-            const displayList = q.length > 0 ? filtered.slice(0, 80) : filtered.slice(0, 40);
-
+            const displayList = q.length > 0 ? filtered.slice(0, 100) : filtered.slice(0, 50);
             grid.innerHTML = displayList.length > 0 ? displayList.map(p => {
                 const qty = cart[p.name] ? cart[p.name].qty : 0;
-                return `
-                <div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card border border-gray-100">
+                return `<div class="bg-white p-4 rounded-3xl shadow-sm flex justify-between items-center product-card border border-gray-100">
                     <div class="flex items-center gap-4 text-right">
                         <img src="${p.img || 'https://ui-avatars.com/api/?name='+p.name+'&background=random'}" class="w-16 h-16 rounded-2xl object-cover" loading="lazy">
-                        <div>
-                            <h3 class="font-bold text-gray-800 text-sm leading-tight">${p.name}</h3>
-                            <p class="text-blue-700 font-black mt-1">${p.price.toLocaleString()} د.ع</p>
-                        </div>
+                        <div><h3 class="font-bold text-gray-800 text-sm leading-tight">${p.name}</h3><p class="text-blue-700 font-black mt-1">${p.price.toLocaleString()} د.ع</p></div>
                     </div>
                     <div class="flex items-center gap-2">
                         ${qty > 0 ? `<button onclick="updateQty('${p.name}', -1)" class="w-8 h-8 bg-gray-100 rounded-lg font-bold text-lg">-</button><span class="font-bold text-blue-900 text-lg w-4 text-center">${qty}</span>` : ''}
                         <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 transition">+</button>
                     </div>
                 </div>`;
-            }).join('') : `<p class="text-center text-gray-400 py-10 font-bold">لا توجد مواد بهذا الاسم</p>`;
+            }).join('') : `<p class="text-center text-gray-400 py-10 font-bold">المادة غير متوفرة حالياً</p>`;
         }
 
         function updateQty(n, c, p) {
@@ -175,15 +169,11 @@
             const now = new Date();
             const dateStr = now.toLocaleDateString('ar-IQ');
             const timeStr = now.toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' });
-
-            let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a`;
-            msg += `📅 التاريخ: ${dateStr}%0a🕒 الوقت: ${timeStr}%0a`;
-            msg += `━━━━━━━━━━━━━━━%0a`;
+            let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a📅 التاريخ: ${dateStr}%0a🕒 الوقت: ${timeStr}%0a━━━━━━━━━━━━━━━%0a`;
             for (let id in cart) msg += `• ${id} (×${cart[id].qty}) = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
             msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a━━━━━━━━━━━━━━━%0aتم الطلب عبر تطبيق الماركت ✅`;
             window.open(`https://wa.me/9647760982880?text=${msg}`);
         }
-        
         init();
     </script>
 </body>
