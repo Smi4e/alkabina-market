@@ -187,11 +187,31 @@
         function openModal() { let h = ''; for (let id in cart) h += `<div class="flex justify-between py-2 border-b border-dashed"><span>${(cart[id].qty * cart[id].price).toLocaleString()}</span><span>${id} (×${cart[id].qty})</span></div>`; document.getElementById('cart-summary').innerHTML = h; document.getElementById('order-modal').classList.remove('hidden'); }
         function closeModal() { document.getElementById('order-modal').classList.add('hidden'); }
         function sendToWhatsApp() {
-            const addr = document.getElementById('cust-address').value.trim() || "لم يذكر (سأرسل اللوكيشن)";
-            let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a━━━━━━━━━━━━━━━%0a`;
-            for (let id in cart) msg += `• ${id} (×${cart[id].qty}) = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
-            msg += `━━━━━━━━━━━━━━━%0a*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a*📍 العنوان:* ${addr}%0a━━━━━━━━━━━━━━━%0aيرجى تأكيد الطلب وتجهيزه 🚚`;
-            window.open(`https://wa.me/9647760982880?text=${msg}`);
+    const addr = document.getElementById('cust-address').value.trim() || "لم يذكر (سأرسل اللوكيشن)";
+    
+    // 🕒 هذي الأسطر تجلب الوقت والتاريخ الحالي بجهاز الزبون
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ar-IQ'); // يعطيك التاريخ مثل 2026/1/28
+    const timeStr = now.toLocaleTimeString('ar-IQ', { hour: '2-digit', minute: '2-digit' }); // يعطيك الوقت مثل 5:30 م
+
+    let msg = `*وصـــل مـاركـت الـكـابـيـنـة*%0a`;
+    msg += `📅 التاريخ: ${dateStr}%0a`;
+    msg += `🕒 الوقت: ${timeStr}%0a`;
+    msg += `━━━━━━━━━━━━━━━%0a`;
+
+    for (let id in cart) {
+        msg += `• ${id} (×${cart[id].qty}) = ${(cart[id].qty * cart[id].price).toLocaleString()} د.ع%0a`;
+    }
+
+    msg += `━━━━━━━━━━━━━━━%0a`;
+    msg += `*💰 الإجمالي: ${document.getElementById('final-price').innerText} د.ع*%0a`;
+    msg += `*📍 العنوان:* ${addr}%0a`;
+    msg += `━━━━━━━━━━━━━━━%0a`;
+    msg += `تم الطلب من التطبيق ✅`;
+
+    window.open(`https://wa.me/9647760982880?text=${msg}`);
+}
+
         }
         init();
     </script>
