@@ -7,7 +7,7 @@
     
     <link rel="apple-touch-icon" href="icon.png.JPG">
     <link rel="icon" type="image/jpeg" href="icon.png.JPG">
-    <link rel="manifest" href="manifest.json?v=6000">
+    <link rel="manifest" href="manifest.json?v=7000">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
@@ -20,8 +20,6 @@
         .product-card { border-right: 6px solid #1e3a8a; transition: transform 0.1s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         #loading-screen { position: fixed; inset: 0; background: white; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .social-link { transition: all 0.3s ease; }
-        .social-link:active { transform: scale(0.9); }
     </style>
 </head>
 <body class="pb-40">
@@ -31,22 +29,19 @@
         <p class="mt-4 font-bold text-blue-900">جاري تحميل المتجر...</p>
     </div>
 
-    <header class="navy-blue text-white pt-8 pb-6 px-6 text-center rounded-b-[40px] shadow-xl border-b-4 border-yellow-400">
+    <header class="navy-blue text-white pt-8 pb-10 px-6 text-center rounded-b-[40px] shadow-xl border-b-4 border-yellow-400">
         <h1 class="text-3xl font-bold text-yellow-400">🏠 ماركت الكابينة</h1>
         <p class="text-white/80 text-sm mt-1 font-bold">تسوق بذكاء وسهولة</p>
         
-        <div class="flex justify-center gap-8 mt-5 bg-white/20 py-4 rounded-2xl border border-white/30 backdrop-blur-md">
-            <a href="https://wa.me/9647760982880" target="_blank" class="social-link text-white text-3xl text-center">
-                <i class="fab fa-whatsapp text-green-400"></i>
-                <span class="text-[10px] block font-bold mt-1">واتساب</span>
+        <div class="max-w-[280px] mx-auto mt-6 bg-white/10 py-4 rounded-[25px] flex justify-center items-center gap-10 border border-white/5 backdrop-blur-sm">
+            <a href="https://wa.me/9647760982880" target="_blank" class="text-white text-3xl opacity-90 hover:opacity-100 transition-all active:scale-90">
+                <i class="fab fa-whatsapp"></i>
             </a>
-            <a href="https://www.facebook.com/share/1C6dsU2642/?mibextid=wwXIfr" target="_blank" class="social-link text-white text-3xl text-center">
-                <i class="fab fa-facebook text-blue-400"></i>
-                <span class="text-[10px] block font-bold mt-1">فيسبوك</span>
+            <a href="https://www.instagram.com/alkabeena.krb?igsh=MXZhYmNiNDBiZ2ZpNA%3D%3D&utm_source=qr" target="_blank" class="text-white text-3xl opacity-90 hover:opacity-100 transition-all active:scale-90">
+                <i class="fab fa-instagram"></i>
             </a>
-            <a href="https://www.instagram.com/alkabeena.krb?igsh=MXZhYmNiNDBiZ2ZpNA%3D%3D&utm_source=qr" target="_blank" class="social-link text-white text-3xl text-center">
-                <i class="fab fa-instagram text-pink-400"></i>
-                <span class="text-[10px] block font-bold mt-1">انستغرام</span>
+            <a href="https://www.facebook.com/share/1C6dsU2642/?mibextid=wwXIfr" target="_blank" class="text-white text-3xl opacity-90 hover:opacity-100 transition-all active:scale-90">
+                <i class="fab fa-facebook"></i>
             </a>
         </div>
     </header>
@@ -110,7 +105,7 @@
                 document.getElementById('categories-list').innerHTML = Array.from(cats).map(c => `<button onclick="filterByCategory('${c}')" class="category-btn px-6 py-2 rounded-full font-bold bg-white text-blue-900 border-2 border-blue-900 whitespace-nowrap">${c}</button>`).join('');
                 document.getElementById('loading-screen').style.display = 'none';
                 render();
-            } catch (e) { document.getElementById('loading-screen').innerHTML = "⚠️ حدث خطأ، يرجى إعادة المحاولة."; }
+            } catch (e) { document.getElementById('loading-screen').innerHTML = "⚠️ فشل في الاتصال بالبيانات."; }
         }
 
         function render() {
@@ -130,7 +125,7 @@
                         <button onclick="updateQty('${p.name}', 1, ${p.price})" class="bg-yellow-400 text-blue-900 w-10 h-10 rounded-xl font-bold text-2xl shadow-md active:scale-90 transition">+</button>
                     </div>
                 </div>`;
-            }).join('') : `<p class="text-center text-gray-400 py-10 font-bold">المادة غير متوفرة حالياً</p>`;
+            }).join('') : `<p class="text-center text-gray-400 py-10 font-bold">عذراً، المادة غير موجودة</p>`;
         }
 
         function updateQty(n, c, p) {
