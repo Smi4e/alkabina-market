@@ -13,19 +13,21 @@
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
+  OneSignalDeferred.push(function(OneSignal) {
+    OneSignal.init({
       appId: "c28c8948-4e38-4e2a-80c1-26c921356f9e",
     });
   });
 
-  // هذه هي الوظيفة التي تجعل الزر يعمل عند الضغط
   function subscribeUser() {
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
     OneSignalDeferred.push(function(OneSignal) {
       OneSignal.slidedown.promptHttpPermission();
+      console.log("تم ضغط الزر بنجاح");
     });
   }
 </script>
+
 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
