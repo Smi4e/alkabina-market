@@ -18,6 +18,13 @@
       appId: "c28c8948-4e38-4e2a-80c1-26c921356f9e",
     });
   });
+
+  // دالة لتشغيل الطلب يدوياً عند الضغط على الزر
+  function subscribeUser() {
+    OneSignalDeferred.push(function(OneSignal) {
+      OneSignal.slidedown.promptHttpPermission();
+    });
+  }
 </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -43,6 +50,7 @@
     </style>
 </head>
 <body class="pb-40">
+<button onclick="subscribeUser()" style="width:100%; padding:15px; background:red; color:white; font-weight:bold; z-index:9999; position:relative; border:none;">🔔 اضغط هنا لتفعيل الإشعارات</button>
 
     <div id="loading-screen" class="fixed inset-0 bg-white z-[100] flex flex-col justify-center items-center">
         <img src="icon.png.JPG" class="w-28 h-28 mb-6 animate-logo rounded-[2rem] shadow-2xl border-4 border-blue-50" onerror="this.src='https://ui-avatars.com/api/?name=K&background=1e3a8a&color=fff'">
