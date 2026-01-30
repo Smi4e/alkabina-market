@@ -5,23 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ماركت الكابينة</title>
     
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(function(OneSignal) {
-        OneSignal.init({
-          appId: "c28c8948-4e38-4e2a-80c1-26c921356f9e",
-          safari_web_id: "web.onesignal.auto.10443725-7286-4f70-a292-8096e2716335",
-          notifyButton: { enable: false },
-        });
-      });
-
-      function subscribeUser() {
-        OneSignalDeferred.push(function(OneSignal) {
-          OneSignal.showNativePrompt();
-        });
-      }
-    </script>
+ <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "36e7246a-1e8b-4bbb-91ec-dc73ec2a4129",
+    });
+  });
+</script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
