@@ -30,6 +30,15 @@
         @keyframes logo-pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.1); opacity: 0.8; } }
         .animate-logo { animation: logo-pulse 2s infinite ease-in-out; }
     </style>
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "36e7246a-1e8b-4bbb-91ec-dc73ec2a4129",
+    });
+  });
+</script>
 </head>
 <body class="pb-40">
 
