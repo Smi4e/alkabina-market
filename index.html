@@ -19,13 +19,14 @@
     });
   });
 
-  // دالة لتشغيل الطلب يدوياً عند الضغط على الزر
+  // هذه هي الوظيفة التي تجعل الزر يعمل عند الضغط
   function subscribeUser() {
     OneSignalDeferred.push(function(OneSignal) {
       OneSignal.slidedown.promptHttpPermission();
     });
   }
 </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ماركت الكابينة</title>
